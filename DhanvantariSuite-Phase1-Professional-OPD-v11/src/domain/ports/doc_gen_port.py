@@ -10,6 +10,6 @@ class DocGenPort(ABC):
         pass
 
     @abstractmethod
-    def generate_prescription_pdf(self, consultation: Consultation, patient: Patient, language: str) -> bytes:
-        """Generates prescription record PDF bytes. Language can be 'en', 'hi', or 'mr'."""
+    def generate_prescription_pdf(self, consultation: Consultation, patient: Patient, language: str = "en", doctor=None, clinic_settings=None) -> bytes:
+        """Generates prescription record PDF bytes with doctor and clinic details. Language can be 'en', 'hi', or 'mr'."""
         pass

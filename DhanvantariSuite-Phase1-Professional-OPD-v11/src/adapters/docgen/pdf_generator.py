@@ -1,7 +1,7 @@
 import io
 from typing import List
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
@@ -242,118 +242,210 @@ class PDFGeneratorAdapter(DocGenPort):
         buffer.close()
         return pdf_bytes
 
-    def generate_prescription_pdf(self, consultation: Consultation, patient: Patient, language: str) -> bytes:
+    def generate_prescription_pdf(self, consultation: Consultation, patient: Patient, language: str = "en", doctor=None, clinic_settings=None) -> bytes:
         lang = language if language in TRANSLATIONS else "en"
         t = TRANSLATIONS[lang]
 
         buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+        doc = SimpleDocTemplate(
+            buffer, pagesize=letter,
+            rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36
+        )
         
         title_style, header_style, body_style, bold_style = self._get_styles()
+
+        styles = getSampleStyleSheet()
+        doc_name_style = ParagraphStyle('DocTitle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=13, leading=16, textColor=colors.HexColor('#0F172A'))
+        doc_sub_style = ParagraphStyle('DocSub', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=11, textColor=colors.HexColor('#475569'))
+        right_title = ParagraphStyle('RightTitle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=12, leading=15, alignment=2, textColor=colors.HexColor('#0D9488'))
+        right_sub = ParagraphStyle('RightSub', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=11, alignment=2, textColor=colors.HexColor('#475569'))
+        section_heading = ParagraphStyle('SecHead', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10, leading=13, textColor=colors.HexColor('#0F766E'))
+
+        # Resolve Doctor and Clinic details
+        doc_name = getattr(doctor, 'full_name', None) or "Dr. Vivek Singh"
+        if not doc_name.lower().startswith("dr.") and not doc_name.lower().startswith("dr "):
+            doc_name = f"Dr. {doc_name}"
+        doc_designation = "MBBS, MD - Consultant Physician"
+
+        clinic_name = getattr(clinic_settings, 'clinic_name', None) or "DHANVANTARI CLINIC & HEALTHCARE"
+        clinic_address = getattr(clinic_settings, 'clinic_address', None) or "Main Branch, Local Area"
+        clinic_phone = getattr(clinic_settings, 'phone', None) or "+91 98765 43210"
+        clinic_email = getattr(clinic_settings, 'email', None) or "contact@dhanvantari.local"
+
         story = []
 
-        # 1. Clinic Letterhead Header
-        story.append(Paragraph("<b><font size=16 color='#2C3E50'>DHANVANTARI CLINIC SUITE</font></b>", title_style))
-        story.append(Paragraph("<font size=9 color='#7F8C8D'>Main Branch, Local Area | Tel: +91 98765 43210 | Email: contact@dhanvantari.local</font>", title_style))
-        story.append(Paragraph(f"<b><font size=11 color='#34495E'>{t['prescription_title']}</font></b>", title_style))
-        story.append(Spacer(1, 10))
-
-        # 2. Patient details
-        metadata = [
-            [Paragraph(f"<b>{t['patient_name']}</b> {patient.full_name}", body_style),
-             Paragraph(f"<b>{t['date']}</b> {consultation.created_at.strftime('%Y-%m-%d')}", body_style)],
-            [Paragraph(f"<b>{t['patient_no']}</b> {patient.patient_number}", body_style),
-             Paragraph(f"<b>{t['mobile']}</b> {patient.mobile_normalized}", body_style)]
+        # 1. Doctor & Clinic Header Table (Side-by-side)
+        doc_info = [
+            Paragraph(f"<b>{doc_name}</b>", doc_name_style),
+            Paragraph(f"{doc_designation}", doc_sub_style),
         ]
-        meta_table = Table(metadata, colWidths=[270, 270])
-        meta_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8F9FA")),
-            ('PADDING', (0,0), (-1,-1), 6),
-            ('LINEBELOW', (0,-1), (-1,-1), 1, colors.HexColor("#E2E8F0")),
-        ]))
-        story.append(meta_table)
-        story.append(Spacer(1, 15))
+        if getattr(clinic_settings, 'license_number', None):
+            doc_info.append(Paragraph(f"Reg/Lic: {clinic_settings.license_number}", doc_sub_style))
 
-        # 3. Symptoms, Diagnosis & Vitals
-        story.append(Paragraph(f"<b>{t['notes']}</b>", header_style))
-        if getattr(consultation, 'consultation_type', None):
-            ctype_text = f"<b>Consultation Type:</b> {consultation.consultation_type}"
-            if getattr(consultation, 'consultation_subtype', None):
-                ctype_text += f" | <b>Sub-Type:</b> {consultation.consultation_subtype}"
-            story.append(Paragraph(ctype_text, body_style))
-            story.append(Spacer(1, 5))
-            
-        story.append(Paragraph(f"<b>Symptoms:</b> {', '.join(consultation.symptoms)}", body_style))
-        story.append(Spacer(1, 5))
-        story.append(Paragraph(f"<b>Diagnosis:</b> {consultation.diagnosis}", body_style))
+        clinic_info = [
+            Paragraph(f"<b>{clinic_name}</b>", right_title),
+            Paragraph(f"{clinic_address}", right_sub),
+            Paragraph(f"Ph: {clinic_phone} | Email: {clinic_email}", right_sub),
+        ]
+        
+        header_table = Table([[doc_info, clinic_info]], colWidths=[270, 270])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('PADDING', (0,0), (-1,-1), 0),
+        ]))
+        story.append(header_table)
+        story.append(Spacer(1, 6))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0D9488'), spaceBefore=2, spaceAfter=8))
+
+        # 2. Patient details bar
+        p_row1 = [
+            Paragraph(f"<b>{t['patient_name']}</b> {patient.full_name}", body_style),
+            Paragraph(f"<b>{t['patient_no']}</b> {patient.patient_number}", body_style),
+            Paragraph(f"<b>{t['date']}</b> {consultation.created_at.strftime('%d-%b-%Y %I:%M %p')}", body_style)
+        ]
+        p_row2 = [
+            Paragraph(f"<b>Age / Sex:</b> {patient.age} Yrs / {patient.gender}", body_style),
+            Paragraph(f"<b>{t['mobile']}</b> {patient.mobile_normalized}", body_style),
+            Paragraph(f"<b>Visit Type:</b> {consultation.consultation_type or 'General OPD'}", body_style)
+        ]
+        patient_table = Table([p_row1, p_row2], colWidths=[200, 170, 170])
+        patient_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8FAFC')),
+            ('PADDING', (0,0), (-1,-1), 5),
+            ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E2E8F0')),
+        ]))
+        story.append(patient_table)
         story.append(Spacer(1, 8))
 
-        # Vitals block
+        # 3. Vitals block (if any recorded)
         vitals_list = []
         if consultation.blood_pressure:
-            vitals_list.append(f"BP: {consultation.blood_pressure}")
+            vitals_list.append(f"<b>BP:</b> {consultation.blood_pressure} mmHg")
         if consultation.weight:
-            vitals_list.append(f"Weight: {consultation.weight} kg")
+            vitals_list.append(f"<b>Weight:</b> {consultation.weight} kg")
         if consultation.height:
-            vitals_list.append(f"Height: {consultation.height} cm")
+            vitals_list.append(f"<b>Height:</b> {consultation.height} cm")
         if getattr(consultation, 'bmi', None):
-            vitals_list.append(f"BMI: {consultation.bmi}")
-        if consultation.temperature:
-            vitals_list.append(f"Temp: {consultation.temperature} °F")
+            vitals_list.append(f"<b>BMI:</b> {consultation.bmi}")
         if consultation.pulse_rate:
-            vitals_list.append(f"Pulse: {consultation.pulse_rate} bpm")
+            vitals_list.append(f"<b>Pulse:</b> {consultation.pulse_rate} bpm")
+        if consultation.temperature:
+            vitals_list.append(f"<b>Temp:</b> {consultation.temperature} °F")
         if getattr(consultation, 'spo2', None):
-            vitals_list.append(f"SpO2: {consultation.spo2}%")
+            vitals_list.append(f"<b>SpO2:</b> {consultation.spo2}%")
         if getattr(consultation, 'respiratory_rate', None):
-            vitals_list.append(f"Resp Rate: {consultation.respiratory_rate} /min")
-            
-        if vitals_list:
-            story.append(Paragraph(f"<b>Vitals:</b> {', '.join(vitals_list)}", body_style))
-            story.append(Spacer(1, 15))
+            vitals_list.append(f"<b>Resp:</b> {consultation.respiratory_rate}/min")
 
-        # 4. Rx details table
-        story.append(Paragraph(f"<b>{t['rx']}</b>", header_style))
-        
+        if vitals_list:
+            v_cell = Paragraph(" &nbsp; | &nbsp; ".join(vitals_list), body_style)
+            v_table = Table([[Paragraph("<b>Vitals:</b>", bold_style), v_cell]], colWidths=[55, 485])
+            v_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F1F5F9')),
+                ('PADDING', (0,0), (-1,-1), 4),
+                ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ]))
+            story.append(v_table)
+            story.append(Spacer(1, 8))
+
+        # 4. Complaints, Diagnosis & Notes
+        cd_data = []
+        if consultation.symptoms:
+            cd_data.append([
+                Paragraph("<b>Symptoms:</b>", bold_style),
+                Paragraph(", ".join(consultation.symptoms), body_style)
+            ])
+        if consultation.diagnosis:
+            cd_data.append([
+                Paragraph("<b>Diagnosis:</b>", bold_style),
+                Paragraph(f"<b><font color='#0F766E'>{consultation.diagnosis}</font></b>", body_style)
+            ])
+        if cd_data:
+            cd_table = Table(cd_data, colWidths=[75, 465])
+            cd_table.setStyle(TableStyle([
+                ('PADDING', (0,0), (-1,-1), 3),
+                ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ]))
+            story.append(cd_table)
+            story.append(Spacer(1, 8))
+
+        # 5. Rx Prescription Table
+        story.append(Paragraph(f"<b><font size=14 color='#0D9488'>Rx</font> <font size=10 color='#334155'>{t['rx']}</font></b>", section_heading))
+        story.append(Spacer(1, 4))
+
         rx_data = [[
-            Paragraph(f"<b>{t['medicine']}</b>", body_style),
-            Paragraph(f"<b>{t['dosage']}</b>", body_style),
-            Paragraph(f"<b>{t['freq']}</b>", body_style),
-            Paragraph(f"<b>{t['duration']}</b>", body_style),
-            Paragraph(f"<b>Relation</b>", body_style)
+            Paragraph("<b>#</b>", bold_style),
+            Paragraph(f"<b>{t['medicine']}</b>", bold_style),
+            Paragraph(f"<b>{t['dosage']}</b>", bold_style),
+            Paragraph(f"<b>{t['freq']}</b>", bold_style),
+            Paragraph(f"<b>{t['duration']}</b>", bold_style),
+            Paragraph("<b>Timing & Instructions</b>", bold_style)
         ]]
-        
-        for item in consultation.prescription:
+
+        for idx, item in enumerate(consultation.prescription, start=1):
             relation = getattr(item, 'food_relation', '') or 'After Food'
             instructions = getattr(item, 'instructions', '') or ''
-            med_text = f"<b>{item.medicine_name}</b>"
+            timing = relation
             if instructions:
-                med_text += f"<br/><font size=8 color='#7F8C8D'>Instructions: {instructions}</font>"
+                timing += f" ({instructions})"
             rx_data.append([
-                Paragraph(med_text, body_style),
+                Paragraph(str(idx), body_style),
+                Paragraph(f"<b>{item.medicine_name}</b>", body_style),
                 Paragraph(item.dosage, body_style),
                 Paragraph(item.frequency, body_style),
                 Paragraph(item.duration, body_style),
-                Paragraph(relation, body_style)
+                Paragraph(timing, body_style)
             ])
 
-        rx_table = Table(rx_data, colWidths=[180, 80, 100, 90, 90])
+        rx_table = Table(rx_data, colWidths=[25, 170, 70, 95, 70, 110])
         rx_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2C3E50")),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('PADDING', (0,0), (-1,-1), 8),
-            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
-            ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8F9FA")]),
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0F766E')),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('ALIGN', (0,0), (0,-1), 'CENTER'),
+            ('PADDING', (0,0), (-1,-1), 5),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+            ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F8FAFC')]),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ]))
         story.append(rx_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 10))
 
+        # 6. Advice / Notes & Follow-up
         if consultation.notes:
-            story.append(Paragraph(f"<b>Instructions / Notes:</b> {consultation.notes}", body_style))
-            story.append(Spacer(1, 10))
+            story.append(Table([[
+                Paragraph("<b>Advice / Notes:</b>", bold_style),
+                Paragraph(consultation.notes, body_style)
+            ]], colWidths=[90, 450], style=[('VALIGN', (0,0), (-1,-1), 'TOP'), ('PADDING', (0,0), (-1,-1), 2)]))
+            story.append(Spacer(1, 5))
 
         if consultation.follow_up_date:
-            story.append(Paragraph(f"<b>Follow-up Date:</b> {consultation.follow_up_date.strftime('%Y-%m-%d')}", bold_style))
+            story.append(Table([[
+                Paragraph("<b>Follow-up Date:</b>", bold_style),
+                Paragraph(f"<b><font color='#0D9488'>{consultation.follow_up_date.strftime('%d-%b-%Y')}</font></b>", body_style)
+            ]], colWidths=[90, 450], style=[('VALIGN', (0,0), (-1,-1), 'TOP'), ('PADDING', (0,0), (-1,-1), 2)]))
+            story.append(Spacer(1, 10))
+
+        # 7. Signature Block
+        story.append(Spacer(1, 20))
+        sig_data = [
+            [Paragraph("", body_style), Paragraph("____________________________________", right_sub)],
+            [Paragraph("", body_style), Paragraph(f"<b>{doc_name}</b>", right_sub)],
+            [Paragraph("", body_style), Paragraph(f"<font size=8 color='#64748B'>{doc_designation}</font>", right_sub)],
+        ]
+        sig_table = Table(sig_data, colWidths=[300, 240])
+        sig_table.setStyle(TableStyle([
+            ('PADDING', (0,0), (-1,-1), 1),
+            ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ]))
+        story.append(sig_table)
+
+        # 8. Footer
+        story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1'), spaceBefore=15, spaceAfter=4))
+        story.append(Paragraph(
+            "<font size=7 color='#94A3B8'><i>This is an electronically generated prescription via Dhanvantari Clinic ERP. Please keep for your medical records.</i></font>",
+            ParagraphStyle('Footer', parent=styles['Normal'], alignment=1)
+        ))
 
         doc.build(story)
         pdf_bytes = buffer.getvalue()

@@ -32,8 +32,32 @@ class BookAppointmentRequest(BaseModel):
     check_in_now: bool = False
 
 
+@router.get("/booked-slots")
+def get_booked_slots(
+    appointment_date: date,
+    doctor_id: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    tenant_id, branch_id = current_user.tenant_id, current_user.branch_id
+    repo = SQLAlchemyAppointmentRepository(db)
+    if doctor_id:
+        appts = repo.list_by_date_and_doctor(appointment_date, doctor_id, tenant_id, branch_id)
+    else:
+        appts = repo.list_queue(appointment_date, tenant_id, branch_id)
+
+    booked = []
+    for a in appts:
+        if a.status != AppointmentStatus.CANCELLED and a.scheduled_time:
+            booked.append(a.scheduled_time.strftime("%H:%M"))
+    return {"booked_slots": booked}
+
+
 @router.post("/book", response_model=Appointment)
 def book_appointment(req: BookAppointmentRequest, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.DOCTOR, UserRole.DOCTOR_ALL, UserRole.RECEPTIONIST]))):
+    if req.appointment_date < date.today():
+        raise HTTPException(status_code=400, detail="Cannot book appointment for a past date.")
+
     doctors = active_doctors(db, current_user)
     if current_user.role == UserRole.DOCTOR:
         doctor_id = current_user.id

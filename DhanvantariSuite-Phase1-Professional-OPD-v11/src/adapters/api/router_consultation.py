@@ -7,7 +7,7 @@ from typing import List, Optional
 from src.adapters.api.dependencies import get_db, require_role, require_clinical_edit, require_clinical_view
 from src.adapters.db.repositories import (
     SQLAlchemyConsultationRepository, SQLAlchemyAppointmentRepository, SQLAlchemyPatientRepository,
-    SQLAlchemyVitalsRepository
+    SQLAlchemyVitalsRepository, SQLAlchemyUserRepository, SQLAlchemyClinicSettingsRepository
 )
 from src.adapters.docgen.pdf_generator import PDFGeneratorAdapter
 from src.services.consultation_service import ConsultationService
@@ -104,8 +104,13 @@ def print_prescription(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
         
     doc_gen = PDFGeneratorAdapter()
+    user_repo = SQLAlchemyUserRepository(db)
+    doctor = user_repo.find_by_id(consultation.doctor_id, tenant_id)
+    settings_repo = SQLAlchemyClinicSettingsRepository(db)
+    clinic_settings = settings_repo.get(tenant_id, current_user.branch_id)
+
     try:
-        pdf_bytes = doc_gen.generate_prescription_pdf(consultation, patient, lang)
+        pdf_bytes = doc_gen.generate_prescription_pdf(consultation, patient, lang, doctor=doctor, clinic_settings=clinic_settings)
         return Response(content=pdf_bytes, media_type="application/pdf")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

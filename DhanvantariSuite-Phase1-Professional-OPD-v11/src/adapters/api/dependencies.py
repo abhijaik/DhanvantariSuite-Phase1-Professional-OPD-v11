@@ -1,6 +1,6 @@
 from typing import Generator, Tuple, Optional
 from datetime import datetime
-from fastapi import Depends, HTTPException, status, Header
+from fastapi import Depends, HTTPException, status, Header, Query
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from src.adapters.db.connection import get_db_session
 from src.services.auth_service import SECRET_KEY, ALGORITHM
 from src.domain.models.user import UserRole, User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=True)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 def get_db() -> Generator[Session, None, None]:
     with get_db_session() as session:
@@ -41,10 +41,18 @@ def get_tenant_context(
     return tenant_id, branch_id
 
 def get_current_user_claims(
-    token: str = Depends(oauth2_scheme),
+    auth_header_token: Optional[str] = Depends(oauth2_scheme),
+    token_param: Optional[str] = Query(None, alias="token"),
     context: Tuple[str, str] = Depends(get_tenant_context)
 ) -> dict:
     """Require a valid JWT for every protected API request."""
+    token = auth_header_token or token_param
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
     tenant_id, branch_id = context
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

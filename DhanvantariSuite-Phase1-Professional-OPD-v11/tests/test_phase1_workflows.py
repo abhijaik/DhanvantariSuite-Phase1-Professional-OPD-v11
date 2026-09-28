@@ -93,3 +93,98 @@ def test_receptionist_vitals_can_be_authorized_and_doctor_consumes_them(client):
     v=client.post('/api/vitals/record',json={'appointment_id':target['appointment']['id'],'blood_pressure':'120/80','weight':70,'height':175,'pulse':72},headers=rh)
     assert v.status_code==200,v.text
     assert v.json()['bmi'] is not None
+
+
+def test_appointment_booking_and_consultation_pdf_history(client):
+    from datetime import date, timedelta
+    dh, duser = login(client, 'doctor_user', 'docpass123')
+    rh, _ = login(client, 'receptionist_user', 'receppass123')
+
+    # 1. Past date booking rejection
+    past_date = (date.today() - timedelta(days=2)).isoformat()
+    future_date = (date.today() + timedelta(days=1)).isoformat()
+
+    p = client.post('/api/patients/register', json=patient_payload('Appt Patient', '9000000099'), headers=dh)
+    assert p.status_code == 200
+    pid = p.json()['id']
+
+    past_res = client.post('/api/queue/book', json={
+        'patient_id': pid,
+        'appointment_date': past_date,
+        'scheduled_time': '10:00:00',
+        'visit_type': 'New Patient',
+        'consultation_type': 'Gynecology Consultation'
+    }, headers=dh)
+    assert past_res.status_code == 400
+    assert 'past' in past_res.json()['detail'].lower()
+
+    # 2. Future date booking and booked slots check
+    book_res = client.post('/api/queue/book', json={
+        'patient_id': pid,
+        'appointment_date': future_date,
+        'scheduled_time': '14:30:00',
+        'visit_type': 'New Patient',
+        'consultation_type': 'Gynecology Consultation'
+    }, headers=dh)
+    assert book_res.status_code == 200
+
+    slots_res = client.get(f'/api/queue/booked-slots?appointment_date={future_date}', headers=dh)
+    assert slots_res.status_code == 200
+    assert '14:30' in slots_res.json()['booked_slots']
+
+    # 3. New Patient in Today's OPD is Save Only (check_in_now: False -> BOOKED)
+    np_res = client.post('/api/patients/register-visit', json={
+        **patient_payload('OPD Save Patient', '9000000098'),
+        'visit_type': 'New Patient',
+        'consultation_type': 'Gynecology Consultation',
+        'doctor_id': duser['user_id'],
+        'check_in_now': False
+    }, headers=rh)
+    assert np_res.status_code == 200, np_res.text
+    saved_appt = np_res.json()['appointment']
+    assert saved_appt['status'] == 'BOOKED'
+
+    # 4. Reception checks in patient, then Doctor starts consultation
+    cin_res = client.post(f"/api/queue/{saved_appt['id']}/checkin", headers=rh)
+    assert cin_res.status_code == 200
+
+    start_res = client.post(f"/api/queue/{saved_appt['id']}/start-consult", headers=dh)
+    assert start_res.status_code == 200
+
+    comp_res = client.post('/api/consultations/complete', json={
+        'appointment_id': saved_appt['id'],
+        'symptoms': ['Dysmenorrhea'],
+        'diagnosis': 'Pelvic Congestion',
+        'prescription': [{
+            'medicine_name': 'Tab Drotaverine',
+            'dosage': '1 tab',
+            'frequency': 'Twice daily',
+            'duration': '3 days',
+            'food_relation': 'After food',
+            'instructions': 'SOS'
+        }],
+        'blood_pressure': '120/80',
+        'notes': 'Follow up if no relief.'
+    }, headers=dh)
+    assert comp_res.status_code == 200
+    cid = comp_res.json()['id']
+
+    # Header auth PDF print
+    pdf_hdr = client.get(f'/api/consultations/{cid}/print?lang=en', headers=dh)
+    assert pdf_hdr.status_code == 200
+    assert pdf_hdr.content.startswith(b'%PDF')
+
+    # Query param token PDF print
+    pdf_token = client.get(f"/api/consultations/{cid}/print?lang=en&token={duser['access_token']}")
+    assert pdf_token.status_code == 200
+    assert pdf_token.content.startswith(b'%PDF')
+
+    # 5. Doctor Patient History option
+    hist_res = client.get(f'/api/consultations/patient/{pid}/history', headers=dh)
+    assert hist_res.status_code == 200
+    hist_save = client.get(f"/api/consultations/patient/{np_res.json()['patient']['id']}/history", headers=dh)
+    assert hist_save.status_code == 200
+    records = hist_save.json()
+    assert len(records) >= 1
+    assert records[0]['diagnosis'] == 'Pelvic Congestion'
+    assert records[0]['prescription'][0]['medicine_name'] == 'Tab Drotaverine'
