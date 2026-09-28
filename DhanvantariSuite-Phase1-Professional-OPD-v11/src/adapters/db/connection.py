@@ -8,7 +8,7 @@ from src.adapters.db.orm_models import Base
 
 # Default is PostgreSQL for both SaaS and Desktop multi-tenant usage.
 # (Make sure PostgreSQL is running and update credentials as needed)
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clinic_erp")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:password@localhost:5432/clinic_erp")
 
 # Enable SQLite foreign key constraints
 @event.listens_for(Engine, "connect")
@@ -32,15 +32,23 @@ def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     # create_all does not add new columns to an existing SQLite table. Apply additive
     # migrations here so users upgrading from an earlier Phase 1 build keep their data.
-    if "sqlite" in DATABASE_URL:
-        from sqlalchemy import inspect, text
-        inspector = inspect(engine)
-        columns = {c["name"] for c in inspector.get_columns("appointments")}
+    from sqlalchemy import inspect, text
+    inspector = inspect(engine)
+    if "appointments" in inspector.get_table_names():
         with engine.begin() as conn:
-            if "referred_by_type" not in columns:
-                conn.execute(text("ALTER TABLE appointments ADD COLUMN referred_by_type VARCHAR(30)"))
-            if "referred_by_name" not in columns:
-                conn.execute(text("ALTER TABLE appointments ADD COLUMN referred_by_name VARCHAR(120)"))
+            if "postgresql" in DATABASE_URL:
+                conn.execute(text("ALTER TABLE appointments ALTER COLUMN consultation_type TYPE VARCHAR(100)"))
+                conn.execute(text("ALTER TABLE appointments ALTER COLUMN visit_type TYPE VARCHAR(50)"))
+                conn.execute(text("ALTER TABLE appointments ALTER COLUMN referred_by_type TYPE VARCHAR(50)"))
+                conn.execute(text("ALTER TABLE appointments ALTER COLUMN queue_token TYPE VARCHAR(20)"))
+                if "consultations" in inspector.get_table_names():
+                    conn.execute(text("ALTER TABLE consultations ALTER COLUMN consultation_type TYPE VARCHAR(100)"))
+            elif "sqlite" in DATABASE_URL:
+                columns = {c["name"] for c in inspector.get_columns("appointments")}
+                if "referred_by_type" not in columns:
+                    conn.execute(text("ALTER TABLE appointments ADD COLUMN referred_by_type VARCHAR(50)"))
+                if "referred_by_name" not in columns:
+                    conn.execute(text("ALTER TABLE appointments ADD COLUMN referred_by_name VARCHAR(120)"))
 
 @contextmanager
 def get_db_session() -> Generator[Session, None, None]:
