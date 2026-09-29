@@ -7,7 +7,7 @@
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--green:#059669;--red:#dc2626;--amber:#d97706;--ink:#172033;--muted:#64748b;--line:#e5e7eb;--bg:#f5f7fb;--card:#fff}
 *{box-sizing:border-box}body{margin:0;font-family:"Aptos","Segoe UI",Roboto,Arial,sans-serif;letter-spacing:-.005em;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}.hidden{display:none!important}
-#app{min-height:100vh}.layout{display:flex;min-height:100vh}.sidebar{width:225px;background:#fff;border-right:1px solid var(--line);padding:20px 14px;position:fixed;inset:0 auto 0 0;z-index:10}.brand{font-size:19px;font-weight:800;line-height:1.1;margin:4px 10px 26px}.brand span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--blue);color:white;margin-right:8px}.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;text-align:left;padding:12px 13px;border-radius:10px;color:#475569;cursor:pointer;font-weight:650}.nav button.active,.nav button:hover{background:#edf4ff;color:var(--blue)}.profile{position:absolute;bottom:16px;left:14px;right:14px;border-top:1px solid var(--line);padding:13px 10px}.profile b{display:block}.profile small{color:var(--muted)}.main{margin-left:225px;width:calc(100% - 225px)}.topbar{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:8}.page-title{font-size:20px;font-weight:800}.status{font-size:12px;color:var(--muted)}.content{padding:24px;max-width:1500px;margin:auto}.grid{display:grid;gap:16px}.grid-4{grid-template-columns:repeat(4,1fr)}.grid-2{grid-template-columns:1.5fr 1fr}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 4px 18px rgba(15,23,42,.035)}.card h3{margin:0 0 14px;font-size:16px}.stat{padding:16px}.stat small{color:var(--muted)}.stat strong{font-size:28px;display:block;margin-top:4px}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:700}.btn:hover{box-shadow:0 4px 12px rgba(15,23,42,.08)}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn.success{background:var(--green);border-color:var(--green);color:white}.btn.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.btn.danger{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.btn.small{padding:7px 9px;font-size:12px}.input,.select,.textarea{width:100%;border:1px solid #d7dee8;border-radius:9px;padding:10px 11px;background:#fff;outline:none}.input:focus,.select:focus,.textarea:focus{border-color:#9db7ff;box-shadow:0 0 0 3px #eff6ff}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:800;display:block;margin-bottom:6px}.field.full{grid-column:1/-1}.hint{font-size:12px;color:var(--muted);margin-top:5px}.required:after{content:' *';color:var(--red)}.banner{padding:12px 14px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;margin-bottom:14px}.banner.warn{background:#fff7ed;color:#9a3412}.patient-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.patient-head h2{margin:0;font-size:20px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.chip{font-size:11px;padding:4px 8px;border-radius:99px;background:#f1f5f9;color:#475569}.chip.blue{background:#eff6ff;color:#1d4ed8}.chip.green{background:#ecfdf5;color:#047857}.chip.amber{background:#fffbeb;color:#92400e}.queue-row{display:grid;grid-template-columns:70px 1.4fr 1fr 100px 180px;gap:12px;align-items:center;border:1px solid var(--line);padding:12px;border-radius:11px;margin-bottom:8px}.token{font-size:19px;font-weight:900;color:var(--blue)}.row-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:30px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.table th{color:var(--muted);font-size:11px;text-transform:uppercase}.modal{position:fixed;inset:0;background:rgba(15,23,42,.38);display:grid;place-items:center;padding:20px;z-index:30}.modalbox{background:white;border-radius:16px;max-width:900px;width:100%;max-height:92vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h2{margin:0}.close{border:0;background:#f1f5f9;border-radius:8px;width:34px;height:34px;cursor:pointer}.history{display:grid;gap:10px}.visit{border-left:3px solid #c7d2fe;background:#f8fafc;padding:11px;border-radius:0 9px 9px 0}.login{position:fixed;inset:0;background:linear-gradient(135deg,#eff6ff,#f8fafc);display:grid;place-items:center;z-index:50}.loginbox{width:min(430px,92vw);background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(15,23,42,.12)}.loginbox h1{margin:0 0 5px}.loginbox p{color:var(--muted);margin:0 0 22px}.loginbox .field{margin-bottom:13px}.quick{display:flex;gap:7px;margin-top:12px}.toast{position:fixed;right:20px;bottom:20px;background:#172033;color:#fff;padding:12px 15px;border-radius:10px;z-index:60;max-width:420px;box-shadow:0 10px 25px rgba(0,0,0,.18)}.doctor-layout{display:grid;grid-template-columns:330px 1fr;gap:16px}.queue-list{max-height:calc(100vh - 190px);overflow:auto}.queue-card{padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}.queue-card.selected{border-color:#9db7ff;background:#eff6ff}.queue-card b{font-size:15px}.consult-section{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}.medrow{display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr 1.4fr 36px;gap:6px;margin-bottom:7px}.money{font-size:25px;font-weight:900}.subtle{color:var(--muted)}.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#94a3b8;margin-right:6px}.status-text{font-weight:800}.status-scheduled{background:#f1f5f9;color:#475569}.status-waiting{background:#fffbeb;color:#92400e}.status-consulting{background:#ecfdf5;color:#047857}.status-completed{background:#eff6ff;color:#1d4ed8}.status-cancelled{background:#fef2f2;color:#b91c1c}.doctor-filter{max-width:240px}@media(max-width:1000px){.sidebar{width:70px}.brand strong,.nav button span,.profile div{display:none}.main{margin-left:70px;width:calc(100% - 70px)}.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.doctor-layout{grid-template-columns:1fr}.queue-row{grid-template-columns:60px 1fr;}.row-actions{justify-content:flex-start}.formgrid{grid-template-columns:1fr}}@media(max-width:600px){.content{padding:14px}.grid-4{grid-template-columns:1fr}.topbar{padding:0 14px}.formgrid{grid-template-columns:1fr}.queue-row{grid-template-columns:1fr}}
+#app{min-height:100vh}.layout{display:flex;min-height:100vh}.sidebar{width:225px;background:#fff;border-right:1px solid var(--line);padding:20px 14px;position:fixed;inset:0 auto 0 0;z-index:10}.brand{font-size:19px;font-weight:800;line-height:1.1;margin:4px 10px 26px}.brand span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--blue);color:white;margin-right:8px}.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;text-align:left;padding:12px 13px;border-radius:10px;color:#475569;cursor:pointer;font-weight:650}.nav button.active,.nav button:hover{background:#edf4ff;color:var(--blue)}.profile{position:absolute;bottom:16px;left:14px;right:14px;border-top:1px solid var(--line);padding:13px 10px}.profile b{display:block}.profile small{color:var(--muted)}.main{margin-left:225px;width:calc(100% - 225px)}.topbar{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:8}.page-title{font-size:20px;font-weight:800}.status{font-size:12px;color:var(--muted)}.content{padding:24px;max-width:1500px;margin:auto}.grid{display:grid;gap:16px}.grid-4{grid-template-columns:repeat(4,1fr)}.grid-2{grid-template-columns:1.5fr 1fr}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 4px 18px rgba(15,23,42,.035)}.card h3{margin:0 0 14px;font-size:16px}.stat{padding:16px}.stat small{color:var(--muted)}.stat strong{font-size:28px;display:block;margin-top:4px}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:700}.btn:hover{box-shadow:0 4px 12px rgba(15,23,42,.08)}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn.success{background:var(--green);border-color:var(--green);color:white}.btn.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.btn.danger{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.btn.small{padding:7px 9px;font-size:12px}.input,.select,.textarea{width:100%;border:1px solid #d7dee8;border-radius:9px;padding:10px 11px;background:#fff;outline:none}.input:focus,.select:focus,.textarea:focus{border-color:#9db7ff;box-shadow:0 0 0 3px #eff6ff}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:800;display:block;margin-bottom:6px}.field.full{grid-column:1/-1}.hint{font-size:12px;color:var(--muted);margin-top:5px}.required:after{content:' *';color:var(--red)}.banner{padding:12px 14px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;margin-bottom:14px}.banner.warn{background:#fff7ed;color:#9a3412}.patient-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.patient-head h2{margin:0;font-size:20px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.chip{font-size:11px;padding:4px 8px;border-radius:99px;background:#f1f5f9;color:#475569}.chip.blue{background:#eff6ff;color:#1d4ed8}.chip.green{background:#ecfdf5;color:#047857}.chip.amber{background:#fffbeb;color:#92400e}.queue-row{display:grid;grid-template-columns:70px 1.4fr 1fr 100px 180px;gap:12px;align-items:center;border:1px solid var(--line);padding:12px;border-radius:11px;margin-bottom:8px}.token{font-size:19px;font-weight:900;color:var(--blue)}.row-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:30px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.table th{color:var(--muted);font-size:11px;text-transform:uppercase}.modal{position:fixed;inset:0;background:rgba(15,23,42,.38);display:grid;place-items:center;padding:20px;z-index:30}.modalbox{background:white;border-radius:16px;max-width:900px;width:100%;max-height:92vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h2{margin:0}.close{border:0;background:#f1f5f9;border-radius:8px;width:34px;height:34px;cursor:pointer}.history{display:grid;gap:10px}.visit{border-left:3px solid #c7d2fe;background:#f8fafc;padding:11px;border-radius:0 9px 9px 0}.login{position:fixed;inset:0;background:linear-gradient(135deg,#eff6ff,#f8fafc);display:grid;place-items:center;z-index:50}.loginbox{width:min(430px,92vw);background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(15,23,42,.12)}.loginbox h1{margin:0 0 5px}.loginbox p{color:var(--muted);margin:0 0 22px}.loginbox .field{margin-bottom:13px}.quick{display:flex;gap:7px;margin-top:12px}.toast{position:fixed;right:20px;bottom:20px;background:#172033;color:#fff;padding:12px 15px;border-radius:10px;z-index:60;max-width:420px;box-shadow:0 10px 25px rgba(0,0,0,.18)}.doctor-layout{display:grid;grid-template-columns:330px 1fr;gap:16px}.queue-list{max-height:calc(100vh - 190px);overflow:auto}.queue-card{padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}.queue-card.selected{border-color:#9db7ff;background:#eff6ff}.queue-card b{font-size:15px}.consult-section{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}.medrow{display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr 1.4fr 36px;gap:6px;margin-bottom:7px}.med-suggest-box{position:absolute;top:calc(100% + 4px);left:0;min-width:320px;max-width:460px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 14px 30px rgba(15,23,42,.15);max-height:240px;overflow-y:auto;z-index:99}.med-suggest-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:13px;transition:background .15s}.med-suggest-item:last-child{border-bottom:0}.med-suggest-item:hover,.med-suggest-item.active{background:#edf4ff;color:var(--blue2)}.med-suggest-item .med-meta{font-size:11px;color:#64748b}.money{font-size:25px;font-weight:900}.subtle{color:var(--muted)}.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#94a3b8;margin-right:6px}.status-text{font-weight:800}.status-scheduled{background:#f1f5f9;color:#475569}.status-waiting{background:#fffbeb;color:#92400e}.status-consulting{background:#ecfdf5;color:#047857}.status-completed{background:#eff6ff;color:#1d4ed8}.status-cancelled{background:#fef2f2;color:#b91c1c}.doctor-filter{max-width:240px}@media(max-width:1000px){.sidebar{width:70px}.brand strong,.nav button span,.profile div{display:none}.main{margin-left:70px;width:calc(100% - 70px)}.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.doctor-layout{grid-template-columns:1fr}.queue-row{grid-template-columns:60px 1fr;}.row-actions{justify-content:flex-start}.formgrid{grid-template-columns:1fr}}@media(max-width:600px){.content{padding:14px}.grid-4{grid-template-columns:1fr}.topbar{padding:0 14px}.formgrid{grid-template-columns:1fr}.queue-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -103,30 +103,128 @@ const TIMING_OPTIONS=[
 ];
 const DURATION_OPTIONS=['1 Day','2 Days','3 Days','5 Days','7 Days','10 Days','14 Days','15 Days','21 Days','1 Month','2 Months','3 Months','6 Months','Continuous'];
 const FOOD_OPTIONS=['After Food','Before Food','Empty Stomach','With Food','Bedtime','Anytime'];
-let dbMedicines=[],completedApptId=null,completedPatientName='';
+let dbMedicines=[],completedApptId=null,completedPatientName='',medSearchTimeout=null;
+
+function escapeHtml(str){
+  if(str==null)return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
 
 async function loadMedicines(){
   try{
     dbMedicines=await api('/api/consultations/medicines');
-    const dl=document.getElementById('med-list');
-    if(dl){
-      dl.innerHTML=dbMedicines.map(m=>`<option value="${m.name}">${m.generic_name?m.name+' ('+m.generic_name+')':m.name}</option>`).join('');
-    }
   }catch(e){dbMedicines=[]}
 }
 
-function onMedSelect(el){
-  const val=(el.value||'').trim().toLowerCase();
-  if(!val)return;
-  const found=dbMedicines.find(m=>m.name.toLowerCase()===val);
-  if(found){
-    const row=el.closest('.medrow');
-    if(row){
-      if(found.default_timing)row.querySelector('.m-dose').value=found.default_timing;
-      if(found.default_duration)row.querySelector('.m-duration').value=found.default_duration;
-      if(found.default_food_relation)row.querySelector('.m-food').value=found.default_food_relation;
-      if(found.instructions&&!row.querySelector('.m-inst').value)row.querySelector('.m-inst').value=found.instructions;
+function onMedInput(input){
+  const q=(input.value||'').trim();
+  renderMedSuggestions(input,q);
+}
+
+function onMedFocus(input){
+  const q=(input.value||'').trim();
+  renderMedSuggestions(input,q);
+}
+
+function renderMedSuggestions(input,query){
+  const box=input.parentElement.querySelector('.med-suggest-box');
+  if(!box)return;
+  const q=query.toLowerCase();
+  let matches=[];
+  if(q){
+    matches=dbMedicines.filter(m=>m.name.toLowerCase().includes(q)||(m.generic_name&&m.generic_name.toLowerCase().includes(q)));
+  }else{
+    matches=dbMedicines.slice(0,8);
+  }
+  if(!matches.length&&!q){
+    box.classList.add('hidden');
+    return;
+  }
+  let html='';
+  matches.slice(0,8).forEach((m,idx)=>{
+    const metaParts=[];
+    if(m.dosage_form)metaParts.push(m.dosage_form);
+    if(m.default_timing)metaParts.push(m.default_timing);
+    if(m.default_duration)metaParts.push(m.default_duration);
+    if(m.default_food_relation)metaParts.push(m.default_food_relation);
+    const metaStr=metaParts.join(' • ');
+    html+=`<div class="med-suggest-item ${idx===0?'active':''}" data-med-id="${m.id}" onmousedown="pickMedSuggestion(this)"><div><strong>${escapeHtml(m.name)}</strong>${m.generic_name?`<span style="font-size:11px;color:#64748b;margin-left:5px">(${escapeHtml(m.generic_name)})</span>`:''}</div><div class="med-meta">${escapeHtml(metaStr)}</div></div>`;
+  });
+  if(q&&!matches.some(m=>m.name.toLowerCase()===q)){
+    html+=`<div class="med-suggest-item ${!matches.length?'active':''}" style="color:var(--blue);font-style:italic;background:#f8fafc" onmousedown="pickNewMed(this)"><div><i class="fa-solid fa-plus-circle"></i> Add new medicine "<b>${escapeHtml(query)}</b>"</div><div class="med-meta">Will save to database on consultation completion</div></div>`;
+  }
+  box.innerHTML=html;
+  box.classList.remove('hidden');
+
+  if(q){
+    clearTimeout(medSearchTimeout);
+    medSearchTimeout=setTimeout(async()=>{
+      try{
+        const sResults=await api('/api/consultations/medicines?q='+encodeURIComponent(q));
+        if(sResults&&sResults.length){
+          sResults.forEach(sm=>{
+            if(!dbMedicines.some(m=>m.id===sm.id))dbMedicines.push(sm);
+          });
+          if(document.activeElement===input&&(input.value||'').trim().toLowerCase()===q){
+            renderMedSuggestions(input,q);
+          }
+        }
+      }catch(e){}
+    },250);
+  }
+}
+
+function pickMedSuggestion(itemEl){
+  const row=itemEl.closest('.medrow');
+  if(!row)return;
+  const medId=itemEl.dataset.medId;
+  const med=dbMedicines.find(x=>x.id===medId);
+  if(!med)return;
+  const input=row.querySelector('.m-name');
+  if(input)input.value=med.name;
+  if(med.default_timing)row.querySelector('.m-dose').value=med.default_timing;
+  if(med.default_duration)row.querySelector('.m-duration').value=med.default_duration;
+  if(med.default_food_relation)row.querySelector('.m-food').value=med.default_food_relation;
+  if(med.instructions&&!row.querySelector('.m-inst').value)row.querySelector('.m-inst').value=med.instructions;
+  const box=row.querySelector('.med-suggest-box');
+  if(box)box.classList.add('hidden');
+}
+
+function pickNewMed(itemEl){
+  const row=itemEl.closest('.medrow');
+  if(!row)return;
+  const box=row.querySelector('.med-suggest-box');
+  if(box)box.classList.add('hidden');
+}
+
+function onMedKeydown(e,input){
+  const box=input.parentElement.querySelector('.med-suggest-box');
+  if(!box||box.classList.contains('hidden'))return;
+  const items=[...box.querySelectorAll('.med-suggest-item')];
+  if(!items.length)return;
+  const currentIdx=items.findIndex(el=>el.classList.contains('active'));
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    const nextIdx=(currentIdx+1)%items.length;
+    items.forEach((el,idx)=>el.classList.toggle('active',idx===nextIdx));
+    items[nextIdx].scrollIntoView({block:'nearest'});
+  }else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    const prevIdx=(currentIdx-1+items.length)%items.length;
+    items.forEach((el,idx)=>el.classList.toggle('active',idx===prevIdx));
+    items[prevIdx].scrollIntoView({block:'nearest'});
+  }else if(e.key==='Enter'||e.key==='Tab'){
+    if(currentIdx>=0&&items[currentIdx]){
+      e.preventDefault();
+      items[currentIdx].dispatchEvent(new MouseEvent('mousedown'));
     }
+  }else if(e.key==='Escape'){
+    box.classList.add('hidden');
   }
 }
 
@@ -135,7 +233,7 @@ async function renderConsult(c){
   if(!currentAppt){c.innerHTML='<div class="card"><div class="empty">Select a patient from Today’s queue to open consultation.</div></div>';return}
   completedApptId=null;
   completedPatientName='';
-  c.innerHTML=`<div class="doctor-layout"><div class="card"><div class="patient-head"><div><h3>Current Patient</h3><h2 id="cp-name">${currentPatient.full_name}</h2><div class="subtle">${currentPatient.patient_number} • ${currentPatient.age} yrs • ${currentPatient.gender}</div><div class="chips"><span class="chip blue">${currentAppt.visit_type}</span>${currentAppt.queue_token?`<span class="chip amber">${currentAppt.queue_token}</span>`:'<span class="chip green">Direct visit</span>'}</div><button type="button" class="btn small" style="margin-top:10px" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-clock-rotate-left"></i> Patient History</button></div></div><div class="consult-section"><h3>Latest Vitals</h3><div id="vital-summary" class="subtle">Loading...</div></div><div class="consult-section"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3>History</h3><button type="button" class="btn small" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-clock-rotate-left"></i> Full History</button></div><div id="history" class="history"></div></div></div><div class="card"><h3>Today's Consultation</h3><form id="consult-form" onsubmit="completeConsult(event)"><div class="formgrid"><div class="field full"><label>Chief Complaints / Symptoms</label><textarea id="c-symptoms" class="textarea" rows="2" placeholder="e.g. irregular periods, abdominal pain, fever"></textarea></div><div class="field full"><label class="required">Clinical Diagnosis</label><textarea id="c-diagnosis" class="textarea" rows="2" required placeholder="Enter clinical diagnosis (required)"></textarea></div><div class="field"><label>BP</label><input id="c-bp" class="input" placeholder="120/80"></div><div class="field"><label>Weight (kg)</label><input id="c-weight" type="number" step="0.1" class="input" oninput="bmi()"></div><div class="field"><label>Height (cm)</label><input id="c-height" type="number" step="0.1" class="input" oninput="bmi()"></div><div class="field"><label>BMI</label><input id="c-bmi" class="input" readonly></div><div class="field"><label>Temperature (°F)</label><input id="c-temp" type="number" step="0.1" class="input"></div><div class="field"><label>Pulse (bpm)</label><input id="c-pulse" type="number" class="input"></div><div class="field"><label>SpO₂ (%)</label><input id="c-spo2" type="number" class="input"></div><div class="field"><label>Respiratory Rate (/min)</label><input id="c-resp" type="number" class="input"></div><div class="field"><label>Follow-up Date</label><input id="c-follow" type="date" class="input"></div><div class="field full"><label>Doctor Notes / Advice</label><textarea id="c-notes" class="textarea" rows="3" placeholder="Diet, tests, lifestyle recommendations"></textarea></div></div><div class="consult-section"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3>Prescription</h3><button type="button" class="btn small" onclick="addMed()"><i class="fa-solid fa-plus"></i> Add Medicine</button></div><datalist id="med-list"></datalist><div style="display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr 1.4fr 36px;gap:6px;margin-bottom:6px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase"><div>Medicine Name</div><div>Timing (M-A-N)</div><div>Duration</div><div>Food Relation</div><div>Instructions</div><div></div></div><div id="meds"></div><button type="button" class="btn small" style="margin-top:6px" onclick="addMed()">+ Add Another Medicine</button></div><div id="consult-success-banner" class="banner hidden" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;margin-top:14px"><i class="fa-solid fa-circle-check"></i> <b>Consultation Completed & Prescription Generated.</b> The patient is now queued for billing. Click <b>Proceed to Billing</b> below or pick another patient.</div><div class="actions" style="margin-top:18px"><button type="submit" class="btn primary" id="btn-complete-rx"><i class="fa-solid fa-file-prescription"></i> Complete & Generate Prescription</button><button type="button" class="btn success" id="btn-go-billing" disabled style="opacity:0.5;cursor:not-allowed" onclick="goToBilling()"><i class="fa-solid fa-receipt"></i> Proceed to Billing</button></div></form></div></div>`;
+  c.innerHTML=`<div class="doctor-layout"><div class="card"><div class="patient-head"><div><h3>Current Patient</h3><h2 id="cp-name">${currentPatient.full_name}</h2><div class="subtle">${currentPatient.patient_number} • ${currentPatient.age} yrs • ${currentPatient.gender}</div><div class="chips"><span class="chip blue">${currentAppt.visit_type}</span>${currentAppt.queue_token?`<span class="chip amber">${currentAppt.queue_token}</span>`:'<span class="chip green">Direct visit</span>'}</div><button type="button" class="btn small" style="margin-top:10px" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-clock-rotate-left"></i> Patient History</button></div></div><div class="consult-section"><h3>Latest Vitals</h3><div id="vital-summary" class="subtle">Loading...</div></div><div class="consult-section"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3>History</h3><button type="button" class="btn small" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-clock-rotate-left"></i> Full History</button></div><div id="history" class="history"></div></div></div><div class="card"><h3>Today's Consultation</h3><form id="consult-form" onsubmit="completeConsult(event)"><div class="formgrid"><div class="field full"><label>Chief Complaints / Symptoms</label><textarea id="c-symptoms" class="textarea" rows="2" placeholder="e.g. irregular periods, abdominal pain, fever"></textarea></div><div class="field full"><label class="required">Clinical Diagnosis</label><textarea id="c-diagnosis" class="textarea" rows="2" required placeholder="Enter clinical diagnosis (required)"></textarea></div><div class="field"><label>BP</label><input id="c-bp" class="input" placeholder="120/80"></div><div class="field"><label>Weight (kg)</label><input id="c-weight" type="number" step="0.1" class="input" oninput="bmi()"></div><div class="field"><label>Height (cm)</label><input id="c-height" type="number" step="0.1" class="input" oninput="bmi()"></div><div class="field"><label>BMI</label><input id="c-bmi" class="input" readonly></div><div class="field"><label>Temperature (°F)</label><input id="c-temp" type="number" step="0.1" class="input"></div><div class="field"><label>Pulse (bpm)</label><input id="c-pulse" type="number" class="input"></div><div class="field"><label>SpO₂ (%)</label><input id="c-spo2" type="number" class="input"></div><div class="field"><label>Respiratory Rate (/min)</label><input id="c-resp" type="number" class="input"></div><div class="field"><label>Follow-up Date</label><input id="c-follow" type="date" class="input"></div><div class="field full"><label>Doctor Notes / Advice</label><textarea id="c-notes" class="textarea" rows="3" placeholder="Diet, tests, lifestyle recommendations"></textarea></div></div><div class="consult-section"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3>Prescription</h3><button type="button" class="btn small" onclick="addMed()"><i class="fa-solid fa-plus"></i> Add Medicine</button></div><div style="display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr 1.4fr 36px;gap:6px;margin-bottom:6px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase"><div>Medicine Name (Type to search)</div><div>Timing (M-A-N)</div><div>Duration</div><div>Food Relation</div><div>Instructions</div><div></div></div><div id="meds"></div><button type="button" class="btn small" style="margin-top:6px" onclick="addMed()">+ Add Another Medicine</button></div><div id="consult-success-banner" class="banner hidden" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;margin-top:14px"><i class="fa-solid fa-circle-check"></i> <b>Consultation Completed & Prescription Generated.</b> The patient is now queued for billing. Click <b>Proceed to Billing</b> below or pick another patient.</div><div class="actions" style="margin-top:18px"><button type="submit" class="btn primary" id="btn-complete-rx"><i class="fa-solid fa-file-prescription"></i> Complete & Generate Prescription</button><button type="button" class="btn success" id="btn-go-billing" disabled style="opacity:0.5;cursor:not-allowed" onclick="goToBilling()"><i class="fa-solid fa-receipt"></i> Proceed to Billing</button></div></form></div></div>`;
   await populateConsult();
 }
 
@@ -165,7 +263,17 @@ function addMed(data={}){
   const timingOpts=TIMING_OPTIONS.map(o=>`<option value="${o.val}" ${((data.dosage||'1-0-1')===o.val)?'selected':''}>${o.label}</option>`).join('');
   const durOpts=DURATION_OPTIONS.map(o=>`<option value="${o}" ${((data.duration||'5 Days')===o)?'selected':''}>${o}</option>`).join('');
   const foodOpts=FOOD_OPTIONS.map(o=>`<option value="${o}" ${((data.food_relation||'After Food')===o)?'selected':''}>${o}</option>`).join('');
-  d.innerHTML=`<input list="med-list" class="input m-name" placeholder="Search / Type Medicine" value="${data.medicine_name||''}" onchange="onMedSelect(this)"><select class="select m-dose">${timingOpts}</select><select class="select m-duration">${durOpts}</select><select class="select m-food">${foodOpts}</select><input class="input m-inst" placeholder="Instructions (optional)" value="${data.instructions||''}"><button type="button" class="btn small danger" onclick="this.parentElement.remove()" title="Remove medicine">×</button>`;
+  d.innerHTML=`
+    <div style="position:relative">
+      <input class="input m-name" placeholder="Type medicine name..." value="${escapeHtml(data.medicine_name||'')}" autocomplete="off" oninput="onMedInput(this)" onfocus="onMedFocus(this)" onclick="onMedFocus(this)" onkeydown="onMedKeydown(event, this)">
+      <div class="med-suggest-box hidden"></div>
+    </div>
+    <select class="select m-dose">${timingOpts}</select>
+    <select class="select m-duration">${durOpts}</select>
+    <select class="select m-food">${foodOpts}</select>
+    <input class="input m-inst" placeholder="Instructions (optional)" value="${escapeHtml(data.instructions||'')}">
+    <button type="button" class="btn small danger" onclick="this.closest('.medrow').remove()" title="Remove medicine">×</button>
+  `;
   document.getElementById('meds').appendChild(d);
 }
 
@@ -298,6 +406,7 @@ async function saveUser(e){e.preventDefault();try{await api('/api/auth/register'
 async function loadVConfig(){try{const d=await api('/api/vitals/config');document.getElementById('vc-role').value=d.recorder_role==='ANY'?'Both':d.recorder_role}catch(e){}}
 async function saveVConfig(){try{await api('/api/vitals/config',{method:'POST',body:JSON.stringify({recorder_role:document.getElementById('vc-role').value})});toast('Vitals workflow updated.')}catch(e){toast(e.message)}}
 function openModal(html){document.getElementById('modal').innerHTML=html;document.getElementById('modal').classList.remove('hidden')};function closeModal(){document.getElementById('modal').classList.add('hidden');document.getElementById('modal').innerHTML=''}
+document.addEventListener('click',e=>{if(!e.target.closest('.medrow')||(!e.target.classList.contains('m-name')&&!e.target.closest('.med-suggest-box'))){document.querySelectorAll('.med-suggest-box').forEach(b=>b.classList.add('hidden'))}});
 window.addEventListener('load',async()=>{try{const s=JSON.parse(localStorage.getItem('dhan_session')||'null');if(s){({token,role,name,uid,canPay,canVitals,canClinicalView,canClinicalEdit}=s);const me=await api('/api/auth/me');if(me){document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');await boot()}}}catch(e){localStorage.removeItem('dhan_session')}})
 </script>
 </body></html>
