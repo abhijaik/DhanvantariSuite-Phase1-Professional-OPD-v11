@@ -35,8 +35,11 @@ TRANSLATIONS = {
         "rx": "Rx (Prescription Details):",
         "medicine": "Medicine Name",
         "dosage": "Dosage",
+        "timing": "Timing (M-A-N)",
         "freq": "Frequency",
         "duration": "Duration",
+        "food_relation": "Food Relation",
+        "instructions": "Instructions",
         "notes": "Doctor Notes:"
     },
     "hi": {
@@ -60,8 +63,11 @@ TRANSLATIONS = {
         "rx": "दवा का विवरण (Rx):",
         "medicine": "दवा का नाम",
         "dosage": "खुराक",
+        "timing": "समय (सुबह-दोपहर-रात)",
         "freq": "बारंबारता",
         "duration": "अवधि",
+        "food_relation": "भोजन संबंध",
+        "instructions": "निर्देश",
         "notes": "डॉक्टर की टिप्पणी:"
     },
     "mr": {
@@ -85,8 +91,11 @@ TRANSLATIONS = {
         "rx": "औषधोपचार तपशील (Rx):",
         "medicine": "औषधाचे नाव",
         "dosage": "मात्रा",
+        "timing": "वेळ (सकाळ-दुपार-रात्र)",
         "freq": "वारंवारता",
         "duration": "कालावधी",
+        "food_relation": "जेवणासंबंधी",
+        "instructions": "सूचना",
         "notes": "डॉक्टरची नोंद:"
     }
 }
@@ -377,32 +386,32 @@ class PDFGeneratorAdapter(DocGenPort):
         rx_data = [[
             Paragraph("<b>#</b>", bold_style),
             Paragraph(f"<b>{t['medicine']}</b>", bold_style),
-            Paragraph(f"<b>{t['dosage']}</b>", bold_style),
-            Paragraph(f"<b>{t['freq']}</b>", bold_style),
+            Paragraph(f"<b>{t.get('timing', 'Timing (M-A-N)')}</b>", bold_style),
             Paragraph(f"<b>{t['duration']}</b>", bold_style),
-            Paragraph("<b>Timing & Instructions</b>", bold_style)
+            Paragraph(f"<b>{t.get('food_relation', 'Food Relation')}</b>", bold_style),
+            Paragraph(f"<b>{t.get('instructions', 'Instructions')}</b>", bold_style)
         ]]
 
         for idx, item in enumerate(consultation.prescription, start=1):
+            timing = getattr(item, 'dosage', '') or '-'
+            duration = getattr(item, 'duration', '') or '-'
             relation = getattr(item, 'food_relation', '') or 'After Food'
-            instructions = getattr(item, 'instructions', '') or ''
-            timing = relation
-            if instructions:
-                timing += f" ({instructions})"
+            instructions = getattr(item, 'instructions', '') or '-'
             rx_data.append([
                 Paragraph(str(idx), body_style),
                 Paragraph(f"<b>{item.medicine_name}</b>", body_style),
-                Paragraph(item.dosage, body_style),
-                Paragraph(item.frequency, body_style),
-                Paragraph(item.duration, body_style),
-                Paragraph(timing, body_style)
+                Paragraph(timing, body_style),
+                Paragraph(duration, body_style),
+                Paragraph(relation, body_style),
+                Paragraph(instructions, body_style)
             ])
 
-        rx_table = Table(rx_data, colWidths=[25, 170, 70, 95, 70, 110])
+        rx_table = Table(rx_data, colWidths=[25, 175, 85, 75, 90, 90])
         rx_table.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0F766E')),
             ('TEXTCOLOR', (0,0), (-1,0), colors.white),
             ('ALIGN', (0,0), (0,-1), 'CENTER'),
+            ('ALIGN', (2,0), (3,-1), 'CENTER'),
             ('PADDING', (0,0), (-1,-1), 5),
             ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
             ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F8FAFC')]),

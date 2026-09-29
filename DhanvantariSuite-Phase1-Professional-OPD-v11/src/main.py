@@ -63,6 +63,49 @@ def seed_data():
                 except Exception as e:
                     print(f"Error seeding user {username}: {e}")
 
+        # Seed standard OPD medicines if table is empty
+        try:
+            import uuid
+            from datetime import datetime
+            from src.adapters.db.repositories import SQLAlchemyMedicineRepository
+            from src.domain.models.medicine import Medicine
+
+            med_repo = SQLAlchemyMedicineRepository(db)
+            existing_meds = med_repo.search("", "local-clinic", limit=5)
+            if not existing_meds:
+                starter_meds = [
+                    ("Paracetamol 650mg", "Tablet", "1-0-1", "3 Days", "After Food", "Take for fever or pain"),
+                    ("Amoxicillin 500mg", "Capsule", "1-0-1", "5 Days", "After Food", "Complete full antibiotic course"),
+                    ("Pantoprazole 40mg", "Tablet", "1-0-0", "5 Days", "Empty Stomach", "Take early morning 30 mins before breakfast"),
+                    ("Cetirizine 10mg", "Tablet", "0-0-1", "3 Days", "Bedtime", "Take at bedtime for allergy"),
+                    ("Azithromycin 500mg", "Tablet", "1-0-0", "3 Days", "After Food", "Take once daily for 3 days"),
+                    ("Metformin 500mg", "Tablet", "1-0-1", "1 Month", "With Food", "Take with meals"),
+                    ("Amlodipine 5mg", "Tablet", "1-0-0", "1 Month", "After Food", "Take every morning"),
+                    ("Ibuprofen 400mg", "Tablet", "1-0-1", "3 Days", "After Food", "Take with plenty of water after meals"),
+                    ("ORS Sachet", "Powder", "1-1-1", "2 Days", "Anytime", "Dissolve 1 sachet in 1 liter clean water"),
+                    ("Cough Syrup (Dextromethorphan)", "Syrup", "1-1-1", "5 Days", "After Food", "Take 5ml after food"),
+                    ("Multivitamin & Minerals", "Tablet", "0-1-0", "15 Days", "After Food", "Take once daily after lunch"),
+                    ("Domperidone 10mg", "Tablet", "1-0-1", "3 Days", "Before Food", "Take 15 mins before food for nausea")
+                ]
+                for name, form, timing, duration, food, notes in starter_meds:
+                    med = Medicine(
+                        id=str(uuid.uuid4()),
+                        tenant_id="local-clinic",
+                        name=name,
+                        dosage_form=form,
+                        default_timing=timing,
+                        default_duration=duration,
+                        default_food_relation=food,
+                        instructions=notes,
+                        is_active=True,
+                        created_at=datetime.utcnow(),
+                        updated_at=datetime.utcnow()
+                    )
+                    med_repo.save(med)
+                print(f"Seeded {len(starter_meds)} initial OPD medicines.")
+        except Exception as e:
+            print(f"Error seeding initial medicines: {e}")
+
 # Include Routers
 app.include_router(router_auth.router)
 app.include_router(router_patient.router)

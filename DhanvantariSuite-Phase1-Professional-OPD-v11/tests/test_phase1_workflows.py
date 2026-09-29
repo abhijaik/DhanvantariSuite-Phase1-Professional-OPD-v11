@@ -188,3 +188,61 @@ def test_appointment_booking_and_consultation_pdf_history(client):
     assert len(records) >= 1
     assert records[0]['diagnosis'] == 'Pelvic Congestion'
     assert records[0]['prescription'][0]['medicine_name'] == 'Tab Drotaverine'
+
+
+def test_medicine_database_and_consultation_validation(client):
+    dh, duser = login(client, 'doctor_user', 'docpass123')
+
+    # Register a new patient visit
+    reg = client.post('/api/patients/register-visit', json={
+        **patient_payload('Rx Valid Patient', '9000000077'),
+        'visit_type': 'New Patient',
+        'consultation_type': 'Gynecology Consultation',
+        'check_in_now': True
+    }, headers=dh)
+    assert reg.status_code == 200
+    appt_id = reg.json()['appointment']['id']
+
+    # 1. Validation: Empty or blank diagnosis must be rejected
+    fail_res = client.post('/api/consultations/complete', json={
+        'appointment_id': appt_id,
+        'symptoms': ['Fever'],
+        'diagnosis': '   ',  # whitespace only
+        'prescription': []
+    }, headers=dh)
+    assert fail_res.status_code == 400
+    assert 'diagnosis is required' in fail_res.json()['detail'].lower()
+
+    # 2. Consultation with newly prescribed medicine
+    new_med_name = 'Azithromycin 500mg'
+    comp_res = client.post('/api/consultations/complete', json={
+        'appointment_id': appt_id,
+        'symptoms': ['Acute Pharyngitis'],
+        'diagnosis': 'Bacterial Upper Respiratory Tract Infection',
+        'prescription': [{
+            'medicine_name': new_med_name,
+            'dosage': '1-0-0',
+            'duration': '3 Days',
+            'food_relation': 'After Food',
+            'instructions': 'Take once daily after breakfast'
+        }],
+        'notes': 'Rest and drink warm fluids.'
+    }, headers=dh)
+    assert comp_res.status_code == 200
+    consult_id = comp_res.json()['id']
+
+    # 3. Check medicine is automatically persisted in database
+    med_res = client.get(f'/api/consultations/medicines?q=Azithromycin', headers=dh)
+    assert med_res.status_code == 200
+    meds = med_res.json()
+    assert any(m['name'] == new_med_name for m in meds)
+    saved_med = next(m for m in meds if m['name'] == new_med_name)
+    assert saved_med['default_timing'] == '1-0-0'
+    assert saved_med['default_duration'] == '3 Days'
+    assert saved_med['default_food_relation'] == 'After Food'
+
+    # 4. Generate prescription PDF with new column format
+    pdf_res = client.get(f'/api/consultations/{consult_id}/print?lang=en', headers=dh)
+    assert pdf_res.status_code == 200
+    assert pdf_res.content.startswith(b'%PDF')
+

@@ -4,9 +4,9 @@ from pydantic import BaseModel, ConfigDict
 
 class PrescriptionItem(BaseModel):
     medicine_name: str
-    dosage: str          # e.g., "1-0-1" or "1 tab"
-    frequency: str       # e.g., "Once daily", "Twice daily"
-    duration: str        # e.g., "5 days"
+    dosage: str          # e.g., "1-0-1" or "1-1-1"
+    frequency: Optional[str] = ""       # Optional backward compatibility (dosage timing explains frequency)
+    duration: str        # e.g., "5 Days"
     food_relation: Optional[str] = "After Food"
     instructions: Optional[str] = ""
 

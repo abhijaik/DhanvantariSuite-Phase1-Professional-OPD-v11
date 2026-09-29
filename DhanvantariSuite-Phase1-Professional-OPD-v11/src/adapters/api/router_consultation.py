@@ -7,12 +7,14 @@ from typing import List, Optional
 from src.adapters.api.dependencies import get_db, require_role, require_clinical_edit, require_clinical_view
 from src.adapters.db.repositories import (
     SQLAlchemyConsultationRepository, SQLAlchemyAppointmentRepository, SQLAlchemyPatientRepository,
-    SQLAlchemyVitalsRepository, SQLAlchemyUserRepository, SQLAlchemyClinicSettingsRepository
+    SQLAlchemyVitalsRepository, SQLAlchemyUserRepository, SQLAlchemyClinicSettingsRepository,
+    SQLAlchemyMedicineRepository
 )
 from src.adapters.docgen.pdf_generator import PDFGeneratorAdapter
 from src.services.consultation_service import ConsultationService
 from src.domain.models.user import UserRole, User
 from src.domain.models.consultation import Consultation, PrescriptionItem
+from src.domain.models.medicine import Medicine
 
 router = APIRouter(prefix="/api/consultations", tags=["Consultations"])
 
@@ -46,7 +48,8 @@ def complete_consultation(
     consultation_repo = SQLAlchemyConsultationRepository(db)
     appointment_repo = SQLAlchemyAppointmentRepository(db)
     vitals_repo = SQLAlchemyVitalsRepository(db)
-    consultation_service = ConsultationService(consultation_repo, appointment_repo, vitals_repo)
+    medicine_repo = SQLAlchemyMedicineRepository(db)
+    consultation_service = ConsultationService(consultation_repo, appointment_repo, vitals_repo, medicine_repo)
     
     try:
         return consultation_service.complete_consultation(
@@ -71,6 +74,16 @@ def complete_consultation(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.get("/medicines", response_model=List[Medicine])
+def get_medicines(
+    q: Optional[str] = "",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_clinical_view())
+):
+    tenant_id = current_user.tenant_id
+    med_repo = SQLAlchemyMedicineRepository(db)
+    return med_repo.search(query=q or "", tenant_id=tenant_id)
 
 @router.get("/patient/{patient_id}/history", response_model=List[Consultation])
 def get_patient_history(

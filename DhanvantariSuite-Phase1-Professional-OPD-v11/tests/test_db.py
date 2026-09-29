@@ -214,3 +214,52 @@ def test_vitals_and_partial_payment(db_session):
     assert fetched_inv.amount_paid == Decimal("200.00")
     assert fetched_inv.amount_due == Decimal("300.00")
     assert fetched_inv.payment_status == PaymentStatus.PARTIAL
+
+
+def test_medicine_repository(db_session):
+    from src.adapters.db.repositories import SQLAlchemyMedicineRepository
+    from src.domain.models.medicine import Medicine
+    from src.domain.models.consultation import PrescriptionItem
+
+    med_repo = SQLAlchemyMedicineRepository(db_session)
+    med_id = str(uuid.uuid4())
+    med = Medicine(
+        id=med_id,
+        tenant_id="tenant-1",
+        name="Paracetamol 500mg",
+        generic_name="Paracetamol",
+        dosage_form="Tablet",
+        default_timing="1-0-1",
+        default_duration="3 Days",
+        default_food_relation="After Food",
+        instructions="Take with water",
+        is_active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow()
+    )
+    med_repo.save(med)
+    db_session.commit()
+
+    # Find by name case-insensitive
+    found = med_repo.find_by_name("paracetamol 500mg", "tenant-1")
+    assert found is not None
+    assert found.name == "Paracetamol 500mg"
+    assert found.default_timing == "1-0-1"
+
+    # Search
+    search_results = med_repo.search("para", "tenant-1")
+    assert len(search_results) >= 1
+
+    # Ensure medicines exist creates new one and preserves existing
+    items = [
+        PrescriptionItem(medicine_name="Paracetamol 500mg", dosage="1-1-1", duration="5 Days"),
+        PrescriptionItem(medicine_name="Ibuprofen 200mg", dosage="1-0-0", duration="2 Days", food_relation="With Food")
+    ]
+    med_repo.ensure_medicines_exist(items, "tenant-1")
+    db_session.commit()
+
+    ibu = med_repo.find_by_name("Ibuprofen 200mg", "tenant-1")
+    assert ibu is not None
+    assert ibu.default_timing == "1-0-0"
+    assert ibu.default_food_relation == "With Food"
+

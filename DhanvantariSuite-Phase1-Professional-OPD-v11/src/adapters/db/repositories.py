@@ -15,6 +15,7 @@ from src.domain.models.sync_log import SyncLog, SyncOperation
 from src.domain.models.vitals import PatientVitals
 from src.domain.models.clinic_settings import ClinicSettings
 from src.domain.models.audit_log import AuditLog
+from src.domain.models.medicine import Medicine
 
 from src.domain.ports.user_repository import UserRepository
 from src.domain.ports.patient_repository import PatientRepository
@@ -29,7 +30,7 @@ from src.domain.ports.audit_log_repository import AuditLogRepository
 
 from src.adapters.db.orm_models import (
     UserORM, PatientORM, AppointmentORM, ConsultationORM, InvoiceORM, SyncLogORM,
-    VitalsConfigORM, AppointmentVitalsORM, ClinicSettingsORM, AuditLogORM
+    VitalsConfigORM, AppointmentVitalsORM, ClinicSettingsORM, AuditLogORM, MedicineORM
 )
 
 def _serialize_payload(obj):
@@ -841,3 +842,87 @@ class SQLAlchemyAuditLogRepository(AuditLogRepository):
                 summary=orm.summary
             ) for orm in result
         ]
+
+
+# --- MEDICINE REPOSITORY ---
+class SQLAlchemyMedicineRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def save(self, medicine: Medicine) -> Medicine:
+        orm = self.session.get(MedicineORM, medicine.id)
+        if not orm:
+            orm = MedicineORM(
+                id=medicine.id,
+                tenant_id=medicine.tenant_id,
+                name=medicine.name,
+                generic_name=medicine.generic_name,
+                dosage_form=medicine.dosage_form,
+                default_timing=medicine.default_timing,
+                default_duration=medicine.default_duration,
+                default_food_relation=medicine.default_food_relation,
+                instructions=medicine.instructions,
+                is_active=medicine.is_active,
+                created_at=medicine.created_at,
+                updated_at=medicine.updated_at
+            )
+            self.session.add(orm)
+        else:
+            orm.name = medicine.name
+            orm.generic_name = medicine.generic_name
+            orm.dosage_form = medicine.dosage_form
+            orm.default_timing = medicine.default_timing
+            orm.default_duration = medicine.default_duration
+            orm.default_food_relation = medicine.default_food_relation
+            orm.instructions = medicine.instructions
+            orm.is_active = medicine.is_active
+            orm.updated_at = datetime.utcnow()
+        self.session.flush()
+        return Medicine.model_validate(orm)
+
+    def find_by_name(self, name: str, tenant_id: str) -> Optional[Medicine]:
+        clean = (name or "").strip()
+        if not clean:
+            return None
+        stmt = select(MedicineORM).where(
+            MedicineORM.tenant_id == tenant_id,
+            func.lower(MedicineORM.name) == clean.lower()
+        )
+        orm = self.session.scalar(stmt)
+        return Medicine.model_validate(orm) if orm else None
+
+    def search(self, query: str, tenant_id: str, limit: int = 50) -> List[Medicine]:
+        q = (query or "").strip().lower()
+        stmt = select(MedicineORM).where(
+            MedicineORM.tenant_id == tenant_id,
+            MedicineORM.is_active == True
+        )
+        if q:
+            stmt = stmt.where(
+                (func.lower(MedicineORM.name).contains(q)) |
+                (func.lower(MedicineORM.generic_name).contains(q))
+            )
+        stmt = stmt.order_by(MedicineORM.name.asc()).limit(limit)
+        return [Medicine.model_validate(orm) for orm in self.session.scalars(stmt)]
+
+    def ensure_medicines_exist(self, items: List[PrescriptionItem], tenant_id: str) -> None:
+        for item in items:
+            med_name = (item.medicine_name or "").strip()
+            if not med_name:
+                continue
+            existing = self.find_by_name(med_name, tenant_id)
+            if not existing:
+                new_med = Medicine(
+                    id=str(uuid.uuid4()),
+                    tenant_id=tenant_id,
+                    name=med_name,
+                    default_timing=item.dosage or "1-0-1",
+                    default_duration=item.duration or "5 Days",
+                    default_food_relation=item.food_relation or "After Food",
+                    instructions=item.instructions or "",
+                    is_active=True,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow()
+                )
+                self.save(new_med)
+

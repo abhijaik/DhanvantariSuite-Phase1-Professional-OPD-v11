@@ -12,11 +12,13 @@ class ConsultationService:
         self,
         consultation_repo: ConsultationRepository,
         appointment_repo: AppointmentRepository,
-        vitals_repo = None
+        vitals_repo = None,
+        medicine_repo = None
     ):
         self.consultation_repo = consultation_repo
         self.appointment_repo = appointment_repo
         self.vitals_repo = vitals_repo
+        self.medicine_repo = medicine_repo
 
     def complete_consultation(
         self,
@@ -39,6 +41,10 @@ class ConsultationService:
         consultation_type: Optional[str] = None,
         consultation_subtype: Optional[str] = None
     ) -> Consultation:
+        # Validate diagnosis
+        if not diagnosis or not diagnosis.strip():
+            raise ValueError("Clinical diagnosis is required to complete consultation.")
+
         # Find corresponding appointment
         appointment = self.appointment_repo.find_by_id(appointment_id, tenant_id)
         if not appointment:
@@ -93,6 +99,13 @@ class ConsultationService:
             updated_at=datetime.utcnow()
         )
         saved_consultation = self.consultation_repo.save(consultation)
+
+        # Automatically record newly prescribed medicines in medicines database
+        if self.medicine_repo and prescription:
+            try:
+                self.medicine_repo.ensure_medicines_exist(prescription, tenant_id)
+            except Exception:
+                pass  # Graceful fallback so prescription completion is never interrupted
 
         # Update appointment status to COMPLETED (which queues for billing)
         appointment.status = AppointmentStatus.COMPLETED

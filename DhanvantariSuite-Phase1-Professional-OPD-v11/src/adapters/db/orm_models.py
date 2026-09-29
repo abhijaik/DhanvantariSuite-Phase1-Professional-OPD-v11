@@ -215,3 +215,24 @@ class AuditLogORM(Base):
     record_id: Mapped[str] = mapped_column(String(36), index=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
     summary: Mapped[str] = mapped_column(Text)
+
+class MedicineORM(Base):
+    __tablename__ = "medicines"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "name", name="uq_medicine_tenant_name"),
+        Index("ix_medicines_tenant_name", "tenant_id", "name"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(String(36), index=True)
+    name: Mapped[str] = mapped_column(String(150), index=True)
+    generic_name: Mapped[Optional[str]] = mapped_column(String(150), nullable=True)
+    dosage_form: Mapped[Optional[str]] = mapped_column(String(50), default="Tablet")
+    default_timing: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    default_duration: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    default_food_relation: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    instructions: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
