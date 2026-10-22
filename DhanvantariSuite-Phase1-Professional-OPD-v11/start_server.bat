@@ -11,7 +11,6 @@ if exist ".venv\Scripts\python.exe" (
 
 echo Starting Dhanvantari Clinic ERP Server...
 echo Database: %DATABASE_URL%
-echo Web UI will be available at: http://127.0.0.1:8000/
-"%PY_CMD%" -m uvicorn src.main:app --host 0.0.0.0 --port 8000
+"%PY_CMD%" src\server.py %*
 endlocal
 

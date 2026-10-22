@@ -43,12 +43,30 @@ def init_db() -> None:
                 conn.execute(text("ALTER TABLE appointments ALTER COLUMN queue_token TYPE VARCHAR(20)"))
                 if "consultations" in inspector.get_table_names():
                     conn.execute(text("ALTER TABLE consultations ALTER COLUMN consultation_type TYPE VARCHAR(100)"))
+                if "audit_logs" in inspector.get_table_names():
+                    audit_cols = {c["name"] for c in inspector.get_columns("audit_logs")}
+                    if "user_role" not in audit_cols:
+                        conn.execute(text("ALTER TABLE audit_logs ADD COLUMN user_role VARCHAR(30)"))
+                    if "ip_address" not in audit_cols:
+                        conn.execute(text("ALTER TABLE audit_logs ADD COLUMN ip_address VARCHAR(50)"))
             elif "sqlite" in DATABASE_URL:
                 columns = {c["name"] for c in inspector.get_columns("appointments")}
                 if "referred_by_type" not in columns:
                     conn.execute(text("ALTER TABLE appointments ADD COLUMN referred_by_type VARCHAR(50)"))
                 if "referred_by_name" not in columns:
                     conn.execute(text("ALTER TABLE appointments ADD COLUMN referred_by_name VARCHAR(120)"))
+                if "audit_logs" in inspector.get_table_names():
+                    audit_cols = {c["name"] for c in inspector.get_columns("audit_logs")}
+                    if "user_role" not in audit_cols:
+                        conn.execute(text("ALTER TABLE audit_logs ADD COLUMN user_role VARCHAR(30)"))
+                    if "ip_address" not in audit_cols:
+                        conn.execute(text("ALTER TABLE audit_logs ADD COLUMN ip_address VARCHAR(50)"))
+                if "patients" in inspector.get_table_names():
+                    pat_cols = {c["name"] for c in inspector.get_columns("patients")}
+                    if "emergency_contact" not in pat_cols:
+                        conn.execute(text("ALTER TABLE patients ADD COLUMN emergency_contact TEXT"))
+                    if "referred_by" not in pat_cols:
+                        conn.execute(text("ALTER TABLE patients ADD COLUMN referred_by VARCHAR(100)"))
 
 @contextmanager
 def get_db_session() -> Generator[Session, None, None]:

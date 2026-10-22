@@ -11,6 +11,7 @@ from src.domain.ports.user_repository import UserRepository
 SECRET_KEY = "SUPER_SECRET_CLINIC_ERP_KEY" # In production, load from env
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480 # 8 hours (typical shift duration)
+_otp_cache: dict = {}
 
 class AuthService:
     def __init__(self, user_repo: UserRepository):
@@ -79,7 +80,7 @@ class AuthService:
         return self.user_repo.save(user)
 
     def authenticate_user(self, tenant_id: str, username: str, password: str) -> Optional[User]:
-        user = self.user_repo.find_by_username(username, tenant_id)
+        user = self.user_repo.find_by_username_or_mobile(username, tenant_id)
         if not user:
             return None
         if user.status != "Active":
@@ -87,3 +88,69 @@ class AuthService:
         if not self.verify_password(password, user.password_hash):
             return None
         return user
+
+    def request_login_otp(self, tenant_id: str, identifier: str) -> dict:
+        identifier = (identifier or "").strip()
+        if not identifier:
+            raise ValueError("Username or mobile number is required.")
+        user = self.user_repo.find_by_username_or_mobile(identifier, tenant_id)
+        if not user:
+            raise ValueError("User not found for the provided username or mobile number.")
+        if user.status != "Active":
+            raise ValueError("This user account is inactive. Please contact the administrator.")
+        if user.role == UserRole.SUPERDOC:
+            raise ValueError("This legacy role is not supported in Phase 1.")
+
+        import secrets
+        otp = f"{secrets.randbelow(900000) + 100000}"
+        expires_at = datetime.utcnow() + timedelta(minutes=5)
+
+        cache_key = f"{tenant_id}:{user.id}"
+        _otp_cache[cache_key] = {
+            "otp": otp,
+            "expires_at": expires_at,
+            "attempts": 0,
+            "user_id": user.id,
+            "username": user.username
+        }
+
+        mobile_display = f" ending in ...{user.mobile[-4:]}" if user.mobile and len(user.mobile) >= 4 else f" for user '{user.username}'"
+        return {
+            "success": True,
+            "message": f"OTP successfully sent to mobile{mobile_display}",
+            "demo_otp": otp,
+            "username": user.username,
+            "full_name": user.full_name
+        }
+
+    def verify_login_otp(self, tenant_id: str, identifier: str, otp: str) -> User:
+        identifier = (identifier or "").strip()
+        otp = (otp or "").strip()
+        if not identifier or not otp:
+            raise ValueError("Username/mobile and OTP are required.")
+
+        user = self.user_repo.find_by_username_or_mobile(identifier, tenant_id)
+        if not user:
+            raise ValueError("User not found.")
+        if user.status != "Active":
+            raise ValueError("This user account is inactive.")
+        if user.role == UserRole.SUPERDOC:
+            raise ValueError("This legacy role is not supported in Phase 1.")
+
+        cache_key = f"{tenant_id}:{user.id}"
+        record = _otp_cache.get(cache_key)
+        if not record or datetime.utcnow() > record["expires_at"]:
+            raise ValueError("OTP has expired or was not requested. Please request a new OTP.")
+
+        if record["attempts"] >= 3:
+            _otp_cache.pop(cache_key, None)
+            raise ValueError("Maximum OTP verification attempts exceeded. Please request a new OTP.")
+
+        if record["otp"] != otp:
+            record["attempts"] += 1
+            remaining = 3 - record["attempts"]
+            raise ValueError(f"Invalid OTP. {remaining} attempt(s) remaining.")
+
+        _otp_cache.pop(cache_key, None)
+        return user
+

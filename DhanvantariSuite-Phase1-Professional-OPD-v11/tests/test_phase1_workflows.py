@@ -22,10 +22,9 @@ def override_get_db():
         db.rollback(); raise
     finally:
         db.close()
-app.dependency_overrides[get_db]=override_get_db
-
 @pytest.fixture(scope='module')
 def client():
+    app.dependency_overrides[get_db]=override_get_db
     Base.metadata.create_all(bind=engine)
     db=Session()
     repo=SQLAlchemyUserRepository(db); auth=AuthService(repo)
@@ -35,6 +34,7 @@ def client():
     with TestClient(app) as c:
         yield c
     Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.pop(get_db, None)
 
 def login(client, user, password):
     r=client.post('/api/auth/login', data={'username':user,'password':password})

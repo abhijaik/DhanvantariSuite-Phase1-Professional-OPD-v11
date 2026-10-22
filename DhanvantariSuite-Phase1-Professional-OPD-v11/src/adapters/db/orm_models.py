@@ -3,6 +3,7 @@ from typing import List, Optional
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import String, Date, Time, DateTime, Text, Numeric, Boolean, ForeignKey, UniqueConstraint, Integer, Float, Index
 from decimal import Decimal
+from src.adapters.db.encryption import EncryptedText
 
 class Base(DeclarativeBase):
     pass
@@ -49,14 +50,14 @@ class PatientORM(Base):
     age: Mapped[int] = mapped_column(Integer)
     gender: Mapped[str] = mapped_column(String(10))
     mobile_normalized: Mapped[str] = mapped_column(String(15), index=True)
-    alternate_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    address: Mapped[str] = mapped_column(Text)
+    alternate_number: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
+    email: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
+    address: Mapped[str] = mapped_column(EncryptedText)
     blood_group: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     marital_status: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    emergency_contact: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    allergies: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    medical_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    emergency_contact: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
+    allergies: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
+    medical_notes: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
     referred_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -81,7 +82,7 @@ class AppointmentORM(Base):
     consultation_subtype: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     referred_by_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     referred_by_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -99,9 +100,9 @@ class ConsultationORM(Base):
     doctor_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"))
     consultation_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     consultation_subtype: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    symptoms: Mapped[str] = mapped_column(Text) # Stored as serialized JSON list
-    diagnosis: Mapped[str] = mapped_column(Text)
-    prescription_json: Mapped[str] = mapped_column(Text) # Stored as serialized JSON list of medicines
+    symptoms: Mapped[str] = mapped_column(EncryptedText) # Stored as encrypted serialized JSON list
+    diagnosis: Mapped[str] = mapped_column(EncryptedText) # Stored as encrypted text
+    prescription_json: Mapped[str] = mapped_column(EncryptedText) # Stored as encrypted serialized JSON list of medicines
     blood_pressure: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     height: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
@@ -111,7 +112,7 @@ class ConsultationORM(Base):
     spo2: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     respiratory_rate: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     follow_up_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(EncryptedText, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -210,9 +211,11 @@ class AuditLogORM(Base):
     tenant_id: Mapped[str] = mapped_column(String(36), index=True)
     branch_id: Mapped[str] = mapped_column(String(36), index=True)
     user_id: Mapped[str] = mapped_column(String(36), index=True)
+    user_role: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
     action: Mapped[str] = mapped_column(String(50))
     module: Mapped[str] = mapped_column(String(50))
     record_id: Mapped[str] = mapped_column(String(36), index=True)
+    ip_address: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
     summary: Mapped[str] = mapped_column(Text)
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import date
@@ -12,6 +12,7 @@ from src.adapters.db.repositories import (
 )
 from src.adapters.docgen.pdf_generator import PDFGeneratorAdapter
 from src.services.consultation_service import ConsultationService
+from src.services.audit_service import AuditService
 from src.domain.models.user import UserRole, User
 from src.domain.models.consultation import Consultation, PrescriptionItem
 from src.domain.models.medicine import Medicine
@@ -52,7 +53,7 @@ def complete_consultation(
     consultation_service = ConsultationService(consultation_repo, appointment_repo, vitals_repo, medicine_repo)
     
     try:
-        return consultation_service.complete_consultation(
+        result = consultation_service.complete_consultation(
             tenant_id=tenant_id,
             branch_id=branch_id,
             appointment_id=req.appointment_id,
@@ -72,6 +73,17 @@ def complete_consultation(
             consultation_type=req.consultation_type,
             consultation_subtype=req.consultation_subtype
         )
+        AuditService(db).record(
+            tenant_id=tenant_id,
+            branch_id=branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="COMPLETE_CONSULTATION",
+            module="CONSULTATION",
+            record_id=result.id,
+            summary=f"Completed clinical consultation for patient {result.patient_id}. Diagnosis: {req.diagnosis[:40]}"
+        )
+        return result
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -87,6 +99,7 @@ def get_medicines(
 
 @router.get("/patient/{patient_id}/history", response_model=List[Consultation])
 def get_patient_history(
+    request: Request,
     patient_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_clinical_view())
@@ -95,10 +108,49 @@ def get_patient_history(
     consultation_repo = SQLAlchemyConsultationRepository(db)
     appointment_repo = SQLAlchemyAppointmentRepository(db)
     consultation_service = ConsultationService(consultation_repo, appointment_repo)
-    return consultation_service.get_patient_history(patient_id, tenant_id)
+    history = consultation_service.get_patient_history(patient_id, tenant_id)
+    AuditService(db).record(
+        tenant_id=tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="READ_CLINICAL_HISTORY",
+        module="CONSULTATION",
+        record_id=patient_id,
+        summary=f"Reviewed clinical consultation history for patient {patient_id} ({len(history)} past encounters)",
+        ip_address=request.client.host if request.client else None
+    )
+    return history
+
+@router.get("/appointment/{appointment_id}", response_model=Consultation)
+def get_consultation_by_appointment(
+    request: Request,
+    appointment_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_clinical_view())
+):
+    tenant_id = current_user.tenant_id
+    consultation_repo = SQLAlchemyConsultationRepository(db)
+    consultation = consultation_repo.find_by_appointment_id(appointment_id, tenant_id)
+    if not consultation:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consultation not found for this appointment")
+    
+    AuditService(db).record(
+        tenant_id=tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="READ_CONSULTATION",
+        module="CONSULTATION",
+        record_id=consultation.id,
+        summary=f"Viewed clinical consultation for appointment {appointment_id}",
+        ip_address=request.client.host if request.client else None
+    )
+    return consultation
 
 @router.get("/{consultation_id}/print")
 def print_prescription(
+    request: Request,
     consultation_id: str,
     lang: str = "en",
     db: Session = Depends(get_db),
@@ -109,6 +161,8 @@ def print_prescription(
     patient_repo = SQLAlchemyPatientRepository(db)
     
     consultation = consultation_repo.find_by_id(consultation_id, tenant_id)
+    if not consultation:
+        consultation = consultation_repo.find_by_appointment_id(consultation_id, tenant_id)
     if not consultation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consultation not found")
         
@@ -124,6 +178,17 @@ def print_prescription(
 
     try:
         pdf_bytes = doc_gen.generate_prescription_pdf(consultation, patient, lang, doctor=doctor, clinic_settings=clinic_settings)
+        AuditService(db).record(
+            tenant_id=tenant_id,
+            branch_id=current_user.branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="PRINT_PRESCRIPTION",
+            module="PRESCRIPTION",
+            record_id=consultation.id,
+            summary=f"Exported prescription PDF in language '{lang}' for patient {patient.full_name} ({patient.patient_number})",
+            ip_address=request.client.host if request.client else None
+        )
         return Response(content=pdf_bytes, media_type="application/pdf")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

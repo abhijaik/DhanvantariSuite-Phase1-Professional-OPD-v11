@@ -16,5 +16,9 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
+    def find_by_username_or_mobile(self, identifier: str, tenant_id: str) -> Optional[User]:
+        pass
+
+    @abstractmethod
     def list_by_branch(self, tenant_id: str, branch_id: str) -> List[User]:
         pass

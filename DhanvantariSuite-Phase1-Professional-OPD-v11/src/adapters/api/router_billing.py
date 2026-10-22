@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from decimal import Decimal
@@ -11,6 +11,7 @@ from src.adapters.db.repositories import (
 from src.adapters.db.orm_models import AppointmentORM, InvoiceORM
 from src.adapters.docgen.pdf_generator import PDFGeneratorAdapter
 from src.services.billing_service import BillingService
+from src.services.audit_service import AuditService
 from src.domain.models.user import UserRole, User
 from src.domain.models.invoice import Invoice, InvoiceItem, PaymentMode, PaymentStatus
 
@@ -47,7 +48,7 @@ def create_invoice(
     billing_service = BillingService(invoice_repo, patient_repo, appt_repo, doc_gen)
     
     try:
-        return billing_service.create_invoice(
+        inv = billing_service.create_invoice(
             tenant_id=tenant_id,
             branch_id=branch_id,
             appointment_id=req.appointment_id,
@@ -59,6 +60,17 @@ def create_invoice(
             payment_mode=req.payment_mode,
             payment_status=req.payment_status
         )
+        AuditService(db).record(
+            tenant_id=tenant_id,
+            branch_id=branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="CREATE_INVOICE",
+            module="BILLING",
+            record_id=inv.id,
+            summary=f"Created invoice {inv.invoice_number} totaling {inv.total_amount}"
+        )
+        return inv
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -78,7 +90,18 @@ def pay_invoice(
     
     billing_service = BillingService(invoice_repo, patient_repo, appt_repo, doc_gen)
     try:
-        return billing_service.record_payment(invoice_id, tenant_id, req.payment_mode, req.amount)
+        updated_inv = billing_service.record_payment(invoice_id, tenant_id, req.payment_mode, req.amount)
+        AuditService(db).record(
+            tenant_id=tenant_id,
+            branch_id=current_user.branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="COLLECT_PAYMENT",
+            module="BILLING",
+            record_id=updated_inv.id,
+            summary=f"Collected payment of {req.amount or updated_inv.amount_paid} via {req.payment_mode.value} for invoice {updated_inv.invoice_number} (status: {updated_inv.payment_status.value})"
+        )
+        return updated_inv
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -112,14 +135,28 @@ def pending_billing_visits(
 
 @router.get("/invoices")
 def list_invoices(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.DOCTOR, UserRole.RECEPTIONIST]))
 ):
-    repo=SQLAlchemyInvoiceRepository(db)
-    return [i.model_dump(mode="json") for i in repo.list_by_branch(current_user.tenant_id,current_user.branch_id)]
+    repo = SQLAlchemyInvoiceRepository(db)
+    invoices = repo.list_by_branch(current_user.tenant_id, current_user.branch_id)
+    AuditService(db).record(
+        tenant_id=current_user.tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="READ_INVOICE_LIST",
+        module="BILLING",
+        record_id=current_user.branch_id,
+        summary=f"Accessed billing records ({len(invoices)} invoices retrieved)",
+        ip_address=request.client.host if request.client else None
+    )
+    return [i.model_dump(mode="json") for i in invoices]
 
 @router.get("/invoice/{invoice_id}/print")
 def print_invoice(
+    request: Request,
     invoice_id: str,
     lang: str = "en",
     db: Session = Depends(get_db),
@@ -134,6 +171,17 @@ def print_invoice(
     billing_service = BillingService(invoice_repo, patient_repo, appt_repo, doc_gen)
     try:
         pdf_bytes = billing_service.generate_receipt_pdf(invoice_id, tenant_id, lang)
+        AuditService(db).record(
+            tenant_id=tenant_id,
+            branch_id=current_user.branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="PRINT_INVOICE_RECEIPT",
+            module="BILLING",
+            record_id=invoice_id,
+            summary=f"Generated and exported payment receipt PDF in language '{lang}' for invoice {invoice_id}",
+            ip_address=request.client.host if request.client else None
+        )
         return Response(content=pdf_bytes, media_type="application/pdf")
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

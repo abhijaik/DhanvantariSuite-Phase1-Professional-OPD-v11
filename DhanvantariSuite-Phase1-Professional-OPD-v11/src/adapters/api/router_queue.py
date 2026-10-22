@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import date, time, datetime
@@ -7,6 +7,7 @@ from typing import List, Optional
 from src.adapters.api.dependencies import get_db, get_current_user, require_role
 from src.adapters.db.repositories import SQLAlchemyAppointmentRepository, SQLAlchemyPatientRepository, SQLAlchemyUserRepository
 from src.services.queue_service import QueueService
+from src.services.audit_service import AuditService
 from src.domain.models.user import UserRole, User
 from src.domain.models.appointment import Appointment, AppointmentStatus
 
@@ -54,7 +55,7 @@ def get_booked_slots(
 
 
 @router.post("/book", response_model=Appointment)
-def book_appointment(req: BookAppointmentRequest, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.DOCTOR, UserRole.DOCTOR_ALL, UserRole.RECEPTIONIST]))):
+def book_appointment(request: Request, req: BookAppointmentRequest, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.DOCTOR, UserRole.DOCTOR_ALL, UserRole.RECEPTIONIST]))):
     if req.appointment_date < date.today():
         raise HTTPException(status_code=400, detail="Cannot book appointment for a past date.")
 
@@ -84,12 +85,24 @@ def book_appointment(req: BookAppointmentRequest, db: Session = Depends(get_db),
         appt.queue_token = f"T-{token_num:02d}"
     if req.check_in_now:
         appt.status = AppointmentStatus.IN_QUEUE if len(doctors) > 1 else AppointmentStatus.CONSULTING
-    repo.save(appt)
-    return appt
+    saved_appt = repo.save(appt)
+
+    AuditService(db).record(
+        tenant_id=current_user.tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="BOOK_APPOINTMENT",
+        module="QUEUE",
+        record_id=saved_appt.id,
+        summary=f"Booked appointment for patient {req.patient_id} on {req.appointment_date} with Dr. {doctor_id} (token: {saved_appt.queue_token or 'N/A'}, status: {saved_appt.status.value})",
+        ip_address=request.client.host if request.client else None
+    )
+    return saved_appt
 
 
 @router.post("/{appointment_id}/checkin", response_model=Appointment)
-def check_in(appointment_id: str, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.RECEPTIONIST]))):
+def check_in(request: Request, appointment_id: str, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.RECEPTIONIST, UserRole.DOCTOR, UserRole.DOCTOR_ALL]))):
     appt = SQLAlchemyAppointmentRepository(db).find_by_id(appointment_id, current_user.tenant_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found")
@@ -101,12 +114,26 @@ def check_in(appointment_id: str, db: Session = Depends(get_db), current_user: U
     if len(doctors) == 1:
         appt.status = AppointmentStatus.CHECKED_IN
         appt.updated_at = datetime.utcnow()
-        return SQLAlchemyAppointmentRepository(db).save(appt)
-    return QueueService(SQLAlchemyAppointmentRepository(db)).check_in_patient(appointment_id, current_user.tenant_id)
+        result = SQLAlchemyAppointmentRepository(db).save(appt)
+    else:
+        result = QueueService(SQLAlchemyAppointmentRepository(db)).check_in_patient(appointment_id, current_user.tenant_id)
+
+    AuditService(db).record(
+        tenant_id=current_user.tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="CHECK_IN_PATIENT",
+        module="QUEUE",
+        record_id=result.id,
+        summary=f"Checked in appointment {result.id} (token: {result.queue_token or 'N/A'}, new status: {result.status.value})",
+        ip_address=request.client.host if request.client else None
+    )
+    return result
 
 
 @router.post("/{appointment_id}/start-consult", response_model=Appointment)
-def start_consult(appointment_id: str, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.DOCTOR, UserRole.DOCTOR_ALL]))):
+def start_consult(request: Request, appointment_id: str, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.DOCTOR, UserRole.DOCTOR_ALL]))):
     repo = SQLAlchemyAppointmentRepository(db)
     appt = repo.find_by_id(appointment_id, current_user.tenant_id)
     if not appt:
@@ -118,11 +145,24 @@ def start_consult(appointment_id: str, db: Session = Depends(get_db), current_us
     doctors = active_doctors(db, current_user)
     if len(doctors) == 1 and appt.status in [AppointmentStatus.BOOKED, AppointmentStatus.CHECKED_IN]:
         appt.status = AppointmentStatus.CONSULTING
-        repo.save(appt)
-        return appt
-    if appt.status != AppointmentStatus.IN_QUEUE:
+        result = repo.save(appt)
+    elif appt.status != AppointmentStatus.IN_QUEUE:
         raise HTTPException(status_code=400, detail="Patient must be checked in before consultation starts.")
-    return QueueService(repo).start_consultation(appointment_id, current_user.tenant_id)
+    else:
+        result = QueueService(repo).start_consultation(appointment_id, current_user.tenant_id)
+
+    AuditService(db).record(
+        tenant_id=current_user.tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="START_CONSULTATION",
+        module="QUEUE",
+        record_id=result.id,
+        summary=f"Doctor {current_user.full_name} started consultation for appointment {result.id}",
+        ip_address=request.client.host if request.client else None
+    )
+    return result
 
 
 @router.get("/live", response_model=List[Appointment])

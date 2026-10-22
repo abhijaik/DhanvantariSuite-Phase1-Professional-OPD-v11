@@ -1,16 +1,50 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from pathlib import Path
 from src.adapters.db.connection import init_db
-from src.adapters.api import router_auth, router_patient, router_queue, router_consultation, router_billing, router_sync, router_vitals, router_settings
+from src.adapters.api import (
+    router_auth, router_patient, router_queue, router_consultation,
+    router_billing, router_sync, router_vitals, router_settings, router_audit
+)
 
 app = FastAPI(
-    title="Clinic Management System (ERP)",
-    version="1.0.0",
-    description="Decoupled offline-first multi-tenant LAN clinic management system"
+    title="Dhanvantari Clinic Management System (ERP)",
+    version="1.1.0",
+    description="HIPAA & DPDP Act 2023 Compliant Multi-Tenant Healthcare ERP"
 )
+
+# Custom Security Headers Middleware for HIPAA / DPDP Compliance
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        # HSTS (HTTP Strict Transport Security) - Enforces HTTPS in production
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+        # Prevent MIME type sniffing
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        # Prevent clickjacking
+        response.headers["X-Frame-Options"] = "DENY"
+        # Legacy XSS Filter protection
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        # Referrer Policy to protect patient and clinical URL privacy
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        # Permissions Policy to block untrusted device sensor access
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        # Content Security Policy (CSP)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+            "img-src 'self' data: blob:; "
+            "font-src 'self' data: https://cdnjs.cloudflare.com; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none';"
+        )
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS middleware to support Tauri / PyWebView loopback requests
 app.add_middleware(
@@ -131,6 +165,7 @@ app.include_router(router_billing.router)
 app.include_router(router_sync.router)
 app.include_router(router_vitals.router)
 app.include_router(router_settings.router)
+app.include_router(router_audit.router)
 
 # Mount static directory for frontend assets
 STATIC_DIR = Path(__file__).resolve().parent / "static"

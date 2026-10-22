@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel
 from typing import Optional, Tuple
 from sqlalchemy.orm import Session
@@ -7,6 +7,7 @@ from src.adapters.api.dependencies import get_db, get_current_user, require_role
 from src.domain.models.user import UserRole, User
 from src.adapters.db.repositories import SQLAlchemyVitalsRepository, SQLAlchemyVitalsConfigRepository
 from src.services.vitals_service import VitalsService
+from src.services.audit_service import AuditService
 
 router = APIRouter(prefix="/api/vitals", tags=["vitals"])
 
@@ -52,6 +53,7 @@ def update_vitals_config(
 
 @router.post("/record")
 def record_vitals(
+    request: Request,
     req: RecordVitalsRequest,
     current_user: User = Depends(require_vitals_recording()),
     service: VitalsService = Depends(get_vitals_service)
@@ -86,6 +88,17 @@ def record_vitals(
         spo2=req.spo2,
         respiratory_rate=req.respiratory_rate,
         recorded_by=recorder_name_and_role
+    )
+    AuditService(service.vitals_repo.session).record(
+        tenant_id=current_user.tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="RECORD_VITALS",
+        module="VITALS",
+        record_id=vitals.id,
+        summary=f"Recorded vital signs for appointment {req.appointment_id} (BP: {req.blood_pressure or 'N/A'}, Pulse: {req.pulse or 'N/A'}, Temp: {req.temperature or 'N/A'}F)",
+        ip_address=request.client.host if request.client else None
     )
     return vitals
 

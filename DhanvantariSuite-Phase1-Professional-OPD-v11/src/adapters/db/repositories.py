@@ -141,6 +141,34 @@ class SQLAlchemyUserRepository(UserRepository):
             updated_at=orm.updated_at
         )
 
+    def find_by_username_or_mobile(self, identifier: str, tenant_id: str) -> Optional[User]:
+        ident = identifier.strip()
+        stmt = select(UserORM).where(
+            UserORM.tenant_id == tenant_id,
+            or_(UserORM.username == ident, UserORM.mobile == ident)
+        )
+        orm = self.session.scalar(stmt)
+        if not orm:
+            return None
+        return User(
+            id=orm.id,
+            tenant_id=orm.tenant_id,
+            branch_id=orm.branch_id,
+            username=orm.username,
+            password_hash=orm.password_hash,
+            full_name=orm.full_name,
+            role=UserRole(orm.role),
+            mobile=orm.mobile,
+            can_collect_payment=orm.can_collect_payment,
+            can_enter_vitals=orm.can_enter_vitals,
+            can_view_clinical_history=orm.can_view_clinical_history,
+            can_edit_clinical_data=orm.can_edit_clinical_data,
+            status=orm.status,
+            last_login=orm.last_login,
+            created_at=orm.created_at,
+            updated_at=orm.updated_at
+        )
+
     def list_by_branch(self, tenant_id: str, branch_id: str) -> List[User]:
         stmt = select(UserORM).where(UserORM.tenant_id == tenant_id, UserORM.branch_id == branch_id)
         result = self.session.scalars(stmt).all()
@@ -337,7 +365,8 @@ class SQLAlchemyAppointmentRepository(AppointmentRepository):
                 AppointmentStatus.CHECKED_IN.value,
                 AppointmentStatus.CONSULTING.value,
                 AppointmentStatus.SCHEDULED.value,
-                AppointmentStatus.BOOKED.value
+                AppointmentStatus.BOOKED.value,
+                AppointmentStatus.COMPLETED.value
             ])
         ).order_by(AppointmentORM.scheduled_time)
         result = self.session.scalars(stmt).all()
@@ -925,4 +954,58 @@ class SQLAlchemyMedicineRepository:
                     updated_at=datetime.utcnow()
                 )
                 self.save(new_med)
+
+
+# --- AUDIT LOG REPOSITORY ---
+class SQLAlchemyAuditLogRepository(AuditLogRepository):
+    def __init__(self, session: Session):
+        self.session = session
+
+    def save(self, log: AuditLog) -> AuditLog:
+        orm = AuditLogORM(
+            id=log.id,
+            tenant_id=log.tenant_id,
+            branch_id=log.branch_id,
+            user_id=log.user_id,
+            user_role=log.user_role,
+            action=log.action,
+            module=log.module,
+            record_id=log.record_id,
+            ip_address=log.ip_address,
+            timestamp=log.timestamp or datetime.utcnow(),
+            summary=log.summary
+        )
+        self.session.add(orm)
+        self.session.flush()
+        return AuditLog.model_validate(orm)
+
+    def list_logs(
+        self,
+        tenant_id: str,
+        branch_id: Optional[str] = None,
+        from_date: Optional[datetime] = None,
+        to_date: Optional[datetime] = None,
+        module: Optional[str] = None,
+        action: Optional[str] = None,
+        user_id: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0
+    ) -> List[AuditLog]:
+        stmt = select(AuditLogORM).where(AuditLogORM.tenant_id == tenant_id)
+        if branch_id:
+            stmt = stmt.where(AuditLogORM.branch_id == branch_id)
+        if from_date:
+            stmt = stmt.where(AuditLogORM.timestamp >= from_date)
+        if to_date:
+            stmt = stmt.where(AuditLogORM.timestamp <= to_date)
+        if module:
+            stmt = stmt.where(AuditLogORM.module == module)
+        if action:
+            stmt = stmt.where(AuditLogORM.action == action)
+        if user_id:
+            stmt = stmt.where(AuditLogORM.user_id == user_id)
+        
+        stmt = stmt.order_by(AuditLogORM.timestamp.desc()).offset(offset).limit(limit)
+        results = self.session.scalars(stmt).all()
+        return [AuditLog.model_validate(orm) for orm in results]
 

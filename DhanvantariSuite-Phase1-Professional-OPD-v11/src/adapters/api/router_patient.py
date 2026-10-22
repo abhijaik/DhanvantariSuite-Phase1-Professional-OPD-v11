@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import date, datetime
@@ -8,6 +8,7 @@ from src.adapters.api.dependencies import get_db, get_current_user, require_role
 from src.adapters.db.repositories import SQLAlchemyPatientRepository, SQLAlchemyUserRepository, SQLAlchemyAppointmentRepository
 from src.services.patient_service import PatientService
 from src.services.queue_service import QueueService
+from src.services.audit_service import AuditService
 from src.domain.models.user import UserRole, User
 from src.domain.models.patient import Patient
 
@@ -80,13 +81,14 @@ class StartExistingVisitRequest(BaseModel):
 
 @router.post("/register", response_model=Patient)
 def register_patient(
+    request: Request,
     req: PatientRegisterRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.DOCTOR, UserRole.RECEPTIONIST]))
 ):
     patient_service = PatientService(SQLAlchemyPatientRepository(db))
     try:
-        return patient_service.register_patient(
+        patient = patient_service.register_patient(
             tenant_id=current_user.tenant_id,
             branch_id=current_user.branch_id,
             full_name=req.full_name,
@@ -105,6 +107,18 @@ def register_patient(
             medical_notes=req.medical_notes,
             referred_by=req.referred_by
         )
+        AuditService(db).record(
+            tenant_id=current_user.tenant_id,
+            branch_id=current_user.branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="CREATE_PATIENT",
+            module="PATIENT",
+            record_id=patient.id,
+            summary=f"Registered patient {patient.full_name} ({patient.patient_number})",
+            ip_address=request.client.host if request.client else None
+        )
+        return patient
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -156,6 +170,19 @@ def register_patient_and_visit(
                 # the doctor opens the visit from Today.
                 appt.status = appt.status.__class__.BOOKED
         repo.save(appt)
+
+        # Audit log patient creation
+        AuditService(db).record(
+            tenant_id=tenant_id,
+            branch_id=branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="CREATE_PATIENT",
+            module="PATIENT",
+            record_id=patient.id,
+            summary=f"Registered patient {patient.full_name} ({patient.patient_number})"
+        )
+
         return {"patient": patient, "appointment": appt, "multi_doctor": multi, "doctor_id": doctor_id}
     except ValueError as e:
         db.rollback()
@@ -191,17 +218,64 @@ def start_visit_for_existing_patient(
     elif req.check_in_now:
         appt.status = appt.status.__class__.CONSULTING if doctor_self_start else appt.status.__class__.BOOKED
     repo.save(appt)
+
+    AuditService(db).record(
+        tenant_id=tenant_id,
+        branch_id=branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="START_VISIT",
+        module="PATIENT",
+        record_id=patient.id,
+        summary=f"Started visit for patient {patient.full_name} ({patient.patient_number})"
+    )
+
     return {"patient": patient, "appointment": appt, "multi_doctor": multi, "doctor_id": doctor_id}
 
 
 @router.get("/search", response_model=List[Patient])
-def search_patients(q: str = "", db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return PatientService(SQLAlchemyPatientRepository(db)).search_patients(q, current_user.tenant_id)
+def search_patients(
+    request: Request,
+    q: str = "",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    results = PatientService(SQLAlchemyPatientRepository(db)).search_patients(q, current_user.tenant_id)
+    if q and len(q) >= 2:
+        AuditService(db).record(
+            tenant_id=current_user.tenant_id,
+            branch_id=current_user.branch_id,
+            user_id=current_user.id,
+            user_role=current_user.role.value,
+            action="SEARCH_PATIENTS",
+            module="PATIENT",
+            record_id=q,
+            summary=f"Searched patient directory for '{q}', found {len(results)} records",
+            ip_address=request.client.host if request.client else None
+        )
+    return results
 
 
 @router.get("/{patient_id}", response_model=Patient)
-def get_patient(patient_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_patient(
+    request: Request,
+    patient_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     patient = SQLAlchemyPatientRepository(db).find_by_id(patient_id, current_user.tenant_id)
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
+    
+    AuditService(db).record(
+        tenant_id=current_user.tenant_id,
+        branch_id=current_user.branch_id,
+        user_id=current_user.id,
+        user_role=current_user.role.value,
+        action="READ_PATIENT",
+        module="PATIENT",
+        record_id=patient.id,
+        summary=f"Accessed health profile for {patient.full_name} ({patient.patient_number})",
+        ip_address=request.client.host if request.client else None
+    )
     return patient
