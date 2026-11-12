@@ -1,0 +1,25 @@
+The following changes were made by the replace_file_content tool to: C:\Users\abhijaimurlid.kapad\.gemini\antigravity\brain\96a6adc5-5eb0-48dd-bcd9-d79bbc83e3d6\task.md. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -1,11 +1,11 @@
+ # Implementation Tasks
+ 
+-- [ ] 1. Propose SMS/Email gateway options in chat.
+-- [ ] 2. Migrate database setup to PostgreSQL for both SaaS and Desktop.
+-- [ ] 3. Add Composite Indexes for `tenant_id` and `branch_id` in `orm_models.py`.
+-- [ ] 4. Add `DOCTOR_ALL` role to `UserRole` (`src/domain/models/user.py`).
+-- [ ] 5. Implement `DOCTOR_ALL` logic in API endpoints and services (Appointments, Consultations).
+-- [ ] 6. Update `README.md` to reflect PostgreSQL and SaaS/Desktop unity.
+-- [ ] 7. Create `USER_GUIDE.md` for end users.
+-- [ ] 8. Review UI to ensure theme consistency and any necessary enhancements.
++- [x] 1. Propose SMS/Email gateway options in chat.
++- [x] 2. Migrate database setup to PostgreSQL for both SaaS and Desktop.
++- [x] 3. Add Composite Indexes for `tenant_id` and `branch_id` in `orm_models.py`.
++- [x] 4. Add `DOCTOR_ALL` role to `UserRole` (`src/domain/models/user.py`).
++- [x] 5. Implement `DOCTOR_ALL` logic in API endpoints and services (Appointments, Consultations).
++- [x] 6. Update `README.md` to reflect PostgreSQL and SaaS/Desktop unity.
++- [x] 7. Create `USER_GUIDE.md` for end users.
++- [x] 8. Review UI to ensure theme consistency and any necessary enhancements.
+ 
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

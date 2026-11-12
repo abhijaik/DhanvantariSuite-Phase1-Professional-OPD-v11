@@ -1,0 +1,12 @@
+{"name":"__pycache__","isDir":true}
+{"name":"appointment.py","sizeBytes":"905"}
+{"name":"audit_log.py","sizeBytes":"313"}
+{"name":"clinic_settings.py","sizeBytes":"692"}
+{"name":"consultation.py","sizeBytes":"1272"}
+{"name":"invoice.py","sizeBytes":"1245"}
+{"name":"patient.py","sizeBytes":"1391"}
+{"name":"sync_log.py","sizeBytes":"486"}
+{"name":"user.py","sizeBytes":"835"}
+{"name":"vitals.py","sizeBytes":"597"}
+
+Summary: This directory contains 1 subdirectories and 9 files.

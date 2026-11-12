@@ -1,0 +1,14 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\src\adapters\api\router_queue.py. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -82,7 +82,7 @@
+ 
+ 
+ @router.post("/{appointment_id}/start-consult", response_model=Appointment)
+-def start_consult(appointment_id: str, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.DOCTOR]))):
++def start_consult(appointment_id: str, db: Session = Depends(get_db), current_user: User = Depends(require_role([UserRole.DOCTOR, UserRole.DOCTOR_ALL]))):
+     repo = SQLAlchemyAppointmentRepository(db)
+     appt = repo.find_by_id(appointment_id, current_user.tenant_id)
+     if not appt:
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

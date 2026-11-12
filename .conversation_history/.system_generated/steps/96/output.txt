@@ -1,0 +1,14 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\src\adapters\api\dependencies.py. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -128,7 +128,7 @@
+ 
+ def require_clinical_view():
+     def dep(user: User = Depends(get_current_user)):
+-        if user.role in [UserRole.ADMIN, UserRole.DOCTOR]:
++        if user.role in [UserRole.ADMIN, UserRole.DOCTOR, UserRole.DOCTOR_ALL]:
+             return user
+         if not user.can_view_clinical_history:
+             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to view clinical history")
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

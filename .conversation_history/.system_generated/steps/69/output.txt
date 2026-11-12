@@ -1,0 +1,13 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\src\adapters\db\orm_models.py. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -119,6 +119,7 @@
+     __tablename__ = "invoices"
+     __table_args__ = (
+         UniqueConstraint("tenant_id", "invoice_number", name="uq_invoice_tenant_number"),
++        Index("ix_invoices_tenant_branch", "tenant_id", "branch_id"),
+     )
+ 
+     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

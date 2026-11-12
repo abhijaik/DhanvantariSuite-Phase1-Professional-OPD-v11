@@ -1,0 +1,5 @@
+{"name":"DhanvantariSuite-Phase1-Professional-OPD-v11","isDir":true}
+{"name":"run_client.bat","sizeBytes":"90"}
+{"name":"run_server.bat","sizeBytes":"90"}
+
+Summary: This directory contains 1 subdirectories and 2 files.

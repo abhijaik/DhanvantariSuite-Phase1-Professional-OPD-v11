@@ -1,0 +1,13 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\src\domain\models\user.py. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -6,6 +6,7 @@
+ class UserRole(str, Enum):
+     ADMIN = "ADMIN"
+     DOCTOR = "DOCTOR"
++    DOCTOR_ALL = "DOCTOR_ALL"
+     RECEPTIONIST = "RECEPTIONIST"
+     SUPERDOC = "SUPERDOC"  # legacy database compatibility only; never assign in Phase 1 UI/API
+ 
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

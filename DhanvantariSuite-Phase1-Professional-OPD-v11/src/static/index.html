@@ -76,6 +76,8 @@ button,input,select,textarea{font:inherit}
 .stat.stat-consulting{border-left-color:var(--green)}
 .stat.stat-completed{border-left-color:var(--cyan)}
 .stat.stat-scheduled{border-left-color:#94a3b8}
+.stat-clickable{cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.stat-clickable:hover,.stat-clickable:focus-visible{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.08);outline:none}
 
 /* Buttons & Controls */
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -119,8 +121,8 @@ button,input,select,textarea{font:inherit}
 .table{width:100%;border-collapse:collapse}
 .table th,.table td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
 .table th{color:var(--muted);font-size:11px;text-transform:uppercase}
-.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:grid;place-items:center;padding:20px;z-index:40}
-.modalbox{background:white;border-radius:16px;max-width:900px;width:100%;max-height:92vh;overflow:auto;padding:22px;box-shadow:0 25px 60px rgba(15,23,42,.2)}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.88);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;z-index:40}
+.modalbox{background:#ffffff;color:var(--ink);border:1px solid var(--line);border-radius:16px;max-width:960px;width:100%;max-height:92vh;overflow:auto;padding:22px;box-shadow:0 25px 60px rgba(15,23,42,.35)}
 .modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modalhead h2{margin:0}
 .close{border:0;background:#f1f5f9;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:18px}
@@ -274,9 +276,9 @@ html[dir="rtl"] .stat.stat-scheduled{border-right-color:#94a3b8}
     <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
       <small style="color:var(--muted);display:block;margin-bottom:6px;font-weight:700" id="lbl-quick-demo">Quick Demo Access:</small>
       <div class="quick">
-        <button class="btn small" onclick="fillQuick('doctor_user','docpass123')">Doctor Demo</button>
-        <button class="btn small" onclick="fillQuick('receptionist_user','receppass123')">Reception Demo</button>
-        <button class="btn small" onclick="fillQuick('admin_user','adminpass123')">Admin Demo</button>
+        <button type="button" class="btn small" onclick="fillQuick('doctor_user','docpass123')">Doctor Demo</button>
+        <button type="button" class="btn small" onclick="fillQuick('receptionist_user','receppass123')">Reception Demo</button>
+        <button type="button" class="btn small" onclick="fillQuick('admin_user','adminpass123')">Admin Demo</button>
       </div>
     </div>
   </div>
@@ -499,7 +501,7 @@ const I18N = {
     billing_tab: "الفواتير والتحصيل",
     admin_tab: "الإدارة",
     audit_tab: "سجلات التدقيق",
-    logout: "تسجيل الخروج",,
+    logout: "تسجيل الخروج",
     scheduled: "अनुसूचित",
     quick_actions: "त्वरित कार्य",
     new_patient: "+ नया मरीज",
@@ -687,6 +689,7 @@ function fillQuick(u, p){
   if(currentAuthMode === 'password'){
     document.getElementById('login-user').value = u;
     document.getElementById('login-pass').value = p;
+    document.getElementById('form-login-pwd').requestSubmit();
   } else {
     document.getElementById('otp-user').value = u;
     requestLoginOtp();
@@ -996,23 +999,23 @@ async function renderToday(c){
 
   c.innerHTML = `
     <div class="grid grid-5">
-      <div class="card stat stat-total">
+      <div class="card stat stat-total stat-clickable" role="button" tabindex="0" onclick="openStatPatientsModal('all')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStatPatientsModal('all');}" title="View Today's Patients">
         <small><i class="fa-solid fa-users" style="color:var(--blue)"></i> ${t('today_patients')}</small>
         <strong id="stat-total">${totalPatients}</strong>
       </div>
-      <div class="card stat stat-waiting">
+      <div class="card stat stat-waiting stat-clickable" role="button" tabindex="0" onclick="openStatPatientsModal('checked_in')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStatPatientsModal('checked_in');}" title="View Checked In Patients">
         <small><i class="fa-solid fa-clock" style="color:var(--amber)"></i> ${t('checked_in')}</small>
         <strong id="stat-checkedin">${checkedIn}</strong>
       </div>
-      <div class="card stat stat-consulting">
+      <div class="card stat stat-consulting stat-clickable" role="button" tabindex="0" onclick="openStatPatientsModal('consulting')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStatPatientsModal('consulting');}" title="View In Consultation Patients">
         <small><i class="fa-solid fa-stethoscope" style="color:var(--green)"></i> ${t('in_consult')}</small>
         <strong id="stat-consulting">${consulting}</strong>
       </div>
-      <div class="card stat stat-completed">
+      <div class="card stat stat-completed stat-clickable" role="button" tabindex="0" onclick="openStatPatientsModal('completed')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStatPatientsModal('completed');}" title="View Completed Patients">
         <small><i class="fa-solid fa-circle-check" style="color:var(--cyan)"></i> ${t('completed')}</small>
         <strong id="stat-completed">${completed}</strong>
       </div>
-      <div class="card stat stat-scheduled">
+      <div class="card stat stat-scheduled stat-clickable" role="button" tabindex="0" onclick="openStatPatientsModal('scheduled')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStatPatientsModal('scheduled');}" title="View Scheduled Patients">
         <small><i class="fa-regular fa-calendar" style="color:#64748b"></i> ${t('scheduled')}</small>
         <strong id="stat-scheduled">${scheduled}</strong>
       </div>
@@ -1052,6 +1055,101 @@ function filterTodayQueue(){
   }
   const area = document.getElementById('queue-area');
   if(area) area.innerHTML = queueHtml(filtered);
+}
+
+const STAT_CATEGORY_META = {
+  all: { titleKey: 'today_patients', icon: 'fa-solid fa-users', color: 'var(--blue)', filter: x => x.appointment.status !== 'CANCELLED' },
+  checked_in: { titleKey: 'checked_in', icon: 'fa-solid fa-clock', color: 'var(--amber)', filter: x => ['IN_QUEUE', 'CHECKED_IN'].includes(x.appointment.status) },
+  consulting: { titleKey: 'in_consult', icon: 'fa-solid fa-stethoscope', color: 'var(--green)', filter: x => x.appointment.status === 'CONSULTING' },
+  completed: { titleKey: 'completed', icon: 'fa-solid fa-circle-check', color: 'var(--cyan)', filter: x => x.appointment.status === 'COMPLETED' },
+  scheduled: { titleKey: 'scheduled', icon: 'fa-regular fa-calendar', color: '#64748b', filter: x => ['BOOKED', 'SCHEDULED'].includes(x.appointment.status) }
+};
+
+function renderStatPatientsRows(list){
+  if(!list.length){
+    return `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">${t('no_patients_today')}</td></tr>`;
+  }
+  return list.map(x => {
+    const a = x.appointment || {};
+    const p = x.patient || {};
+    const apptDate = a.appointment_date || '';
+    const apptTime = a.scheduled_time ? String(a.scheduled_time).slice(0, 5) : '';
+    const dateTimeStr = [apptDate, apptTime].filter(Boolean).join(' • ');
+    const safeName = escapeHtml(p.full_name || 'Patient');
+    const patMeta = [p.patient_number, p.age ? `${p.age}y` : '', p.gender || '', p.mobile_normalized].filter(Boolean).map(escapeHtml).join(' • ');
+    const visitHtml = `<span class="chip blue">${escapeHtml(a.visit_type || '-')}</span>` +
+      (a.consultation_type ? ` <span class="chip">${escapeHtml(a.consultation_type)}</span>` : '') +
+      (a.queue_token ? `<div class="subtle">Token: <b>${escapeHtml(a.queue_token)}</b></div>` : '');
+    let quickBtn = '';
+    if(['BOOKED', 'SCHEDULED'].includes(a.status)){
+      quickBtn = `<button class="btn small primary" onclick="closeModal();checkin('${a.id}')"><i class="fa-solid fa-user-check"></i> ${t('check_in')}</button>`;
+    } else if(['IN_QUEUE', 'CHECKED_IN'].includes(a.status) && role === 'DOCTOR'){
+      quickBtn = `<button class="btn small primary" onclick="closeModal();startConsult('${a.id}')"><i class="fa-solid fa-stethoscope"></i> ${t('open_patient')}</button>`;
+    } else if(a.status === 'CONSULTING' && role === 'DOCTOR'){
+      quickBtn = `<button class="btn small primary" onclick="closeModal();openConsult('${a.id}')"><i class="fa-solid fa-stethoscope"></i> ${t('continue_consult')}</button>`;
+    } else if(a.status === 'COMPLETED'){
+      quickBtn = `<button class="btn small" onclick="closeModal();printPrescriptionModal('${a.id}')"><i class="fa-solid fa-file-prescription"></i> ${t('view_rx')}</button>`;
+    }
+    return `
+      <tr>
+        <td><b>${safeName}</b><div class="subtle">${patMeta}</div></td>
+        <td style="white-space:nowrap">${escapeHtml(dateTimeStr || '-')}</td>
+        <td>${visitHtml}</td>
+        <td><span class="chip ${statusClass(a.status)}"><span class="status-dot"></span>${statusLabel(a.status)}</span></td>
+        <td style="white-space:nowrap">${quickBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openStatPatientsModal(category){
+  const meta = STAT_CATEGORY_META[category] || STAT_CATEGORY_META.all;
+  const doctor = (document.getElementById('today-doctor-filter')?.value || '');
+  const list = todayQueueData.filter(x => (!doctor || x.appointment.doctor_id === doctor) && meta.filter(x));
+  window.__statModalList = list;
+  openModal(`
+    <div class="modalbox">
+      <div class="modalhead">
+        <h2 style="display:flex;align-items:center;gap:10px">
+          <i class="${meta.icon}" style="color:${meta.color}"></i>
+          <span>${t(meta.titleKey)}</span>
+          <span class="chip blue">${list.length}</span>
+        </h2>
+        <button class="close" onclick="closeModal()" title="Close">&times;</button>
+      </div>
+      <div style="margin-bottom:14px">
+        <input id="stat-modal-search" class="input" placeholder="${t('search_placeholder')}" oninput="filterStatModalRows()">
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff">
+        <table class="table">
+          <thead style="background:#f8fafc">
+            <tr>
+              <th>Patient Name</th>
+              <th>Appointment Date & Time</th>
+              <th>Visit Type</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="stat-modal-tbody">
+            ${renderStatPatientsRows(list)}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `);
+}
+
+function filterStatModalRows(){
+  const q = (document.getElementById('stat-modal-search')?.value || '').trim().toLowerCase();
+  const base = window.__statModalList || [];
+  const filtered = !q ? base : base.filter(x => {
+    const a = x.appointment || {}, p = x.patient || {};
+    return [p.full_name, p.patient_number, p.mobile_normalized, a.appointment_date, a.scheduled_time, a.visit_type, a.consultation_type, a.status, a.queue_token]
+      .some(v => String(v || '').toLowerCase().includes(q));
+  });
+  const tbody = document.getElementById('stat-modal-tbody');
+  if(tbody) tbody.innerHTML = renderStatPatientsRows(filtered);
 }
 
 function statusLabel(st){
@@ -2418,6 +2516,7 @@ async function saveVConfig(){
   } catch(e){
     toast(e.message);
   }
+}
 // --- HIPAA § 164.312(b) & DPDP ACT 2023 COMPREHENSIVE AUDIT TRAIL VIEWER ---
 async function renderAudit(c){
   c.innerHTML = `

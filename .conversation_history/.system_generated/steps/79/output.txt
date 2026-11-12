@@ -1,0 +1,9 @@
+{"name":"__pycache__","isDir":true}
+{"name":"auth_service.py","sizeBytes":"3169"}
+{"name":"billing_service.py","sizeBytes":"5340"}
+{"name":"consultation_service.py","sizeBytes":"4313"}
+{"name":"patient_service.py","sizeBytes":"2742"}
+{"name":"queue_service.py","sizeBytes":"3294"}
+{"name":"vitals_service.py","sizeBytes":"2303"}
+
+Summary: This directory contains 1 subdirectories and 6 files.

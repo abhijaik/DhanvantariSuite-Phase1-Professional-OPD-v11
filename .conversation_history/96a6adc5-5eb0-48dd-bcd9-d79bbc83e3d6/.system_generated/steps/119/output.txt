@@ -1,0 +1,14 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\start_server.bat. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -1,7 +1,7 @@
+ @echo off
+ setlocal
+ cd /d "%~dp0"
+-if "%DATABASE_URL%"=="" set DATABASE_URL=sqlite:///clinic_local.db
++if "%DATABASE_URL%"=="" set DATABASE_URL=postgresql://postgres:postgres@localhost:5432/clinic_erp
+ 
+ if exist ".venv\Scripts\python.exe" (
+     set "PY_CMD=.venv\Scripts\python.exe"
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

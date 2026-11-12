@@ -1,0 +1,8 @@
+{"name":"__pycache__","isDir":true}
+{"name":"adapters","isDir":true}
+{"name":"domain","isDir":true}
+{"name":"main.py","sizeBytes":"3213"}
+{"name":"services","isDir":true}
+{"name":"static","isDir":true}
+
+Summary: This directory contains 5 subdirectories and 1 files.

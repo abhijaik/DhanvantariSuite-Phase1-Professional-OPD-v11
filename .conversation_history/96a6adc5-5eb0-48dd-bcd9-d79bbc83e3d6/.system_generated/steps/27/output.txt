@@ -1,0 +1,18 @@
+{"name":".pytest_cache","isDir":true}
+{"name":".venv","isDir":true}
+{"name":"PHASE1_MASTER_SRS.docx","sizeBytes":"42926"}
+{"name":"PHASE1_WORKFLOW_VALIDATION.md","sizeBytes":"3583"}
+{"name":"PROFESSIONAL_OPD_V11_CHANGES.md","sizeBytes":"666"}
+{"name":"PROFESSIONAL_PHASE1_VALIDATION.md","sizeBytes":"5074"}
+{"name":"README.md","sizeBytes":"4458"}
+{"name":"UI_UX_SIMPLIFICATION_NOTES.md","sizeBytes":"1439"}
+{"name":"UI_UX_V8_CHANGES.md","sizeBytes":"1817"}
+{"name":"clinic_local.db","sizeBytes":"262144"}
+{"name":"desktop","isDir":true}
+{"name":"requirements.txt","sizeBytes":"224"}
+{"name":"src","isDir":true}
+{"name":"start_client.bat","sizeBytes":"504"}
+{"name":"start_server.bat","sizeBytes":"423"}
+{"name":"tests","isDir":true}
+
+Summary: This directory contains 5 subdirectories and 11 files.

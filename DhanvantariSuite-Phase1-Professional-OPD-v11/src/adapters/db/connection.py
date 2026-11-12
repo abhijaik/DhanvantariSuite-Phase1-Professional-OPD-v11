@@ -8,7 +8,9 @@ from src.adapters.db.orm_models import Base
 
 # Default is PostgreSQL for both SaaS and Desktop multi-tenant usage.
 # (Make sure PostgreSQL is running and update credentials as needed)
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:password@localhost:5432/clinic_erp")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql+psycopg2://postgres:password@localhost:5432/clinic_erp")
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 # Enable SQLite foreign key constraints
 @event.listens_for(Engine, "connect")

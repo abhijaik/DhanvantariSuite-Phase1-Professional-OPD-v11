@@ -1,0 +1,19 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\src\adapters\db\connection.py. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -6,10 +6,9 @@
+ from sqlalchemy.orm import sessionmaker, Session
+ from src.adapters.db.orm_models import Base
+ 
+-# Default is SQLite for single-PC/demo use.
+-# For a hospital/multi-PC LAN deployment set DATABASE_URL to a central DB (PostgreSQL recommended).
+-# Never put the SQLite file on a shared network folder.
+-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///clinic_local.db")
++# Default is PostgreSQL for both SaaS and Desktop multi-tenant usage.
++# (Make sure PostgreSQL is running and update credentials as needed)
++DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clinic_erp")
+ 
+ # Enable SQLite foreign key constraints
+ @event.listens_for(Engine, "connect")
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

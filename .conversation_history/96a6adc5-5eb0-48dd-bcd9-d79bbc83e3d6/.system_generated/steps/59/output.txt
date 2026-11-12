@@ -1,0 +1,14 @@
+The following changes were made by the replace_file_content tool to: c:\Abhi\AntiGravity\DhanvantariSuite-Phase1-Professional-OPD-v11\DhanvantariSuite-Phase1-Professional-OPD-v11\src\adapters\db\orm_models.py. If relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission.
+[diff_block_start]
+@@ -1,7 +1,7 @@
+ from datetime import date, time, datetime
+ from typing import List, Optional
+ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+-from sqlalchemy import String, Date, Time, DateTime, Text, Numeric, Boolean, ForeignKey, UniqueConstraint, Integer, Float
++from sqlalchemy import String, Date, Time, DateTime, Text, Numeric, Boolean, ForeignKey, UniqueConstraint, Integer, Float, Index
+ from decimal import Decimal
+ 
+ class Base(DeclarativeBase):
+[diff_block_end]
+
+Please note that the above snippet only shows the MODIFIED lines from the last change. It shows up to 3 lines of unchanged lines before and after the modified lines. The actual file contents may have many more lines not shown.

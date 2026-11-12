@@ -1,0 +1,8 @@
+
+The command exited with code 1.
+Output:
+  File "<string>", line 2
+    content = '''# Dhanvantari Clinic ERP � SaaS & Desktop Edition
+              ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 42)
+
