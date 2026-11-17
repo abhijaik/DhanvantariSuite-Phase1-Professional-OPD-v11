@@ -1,25 +1,24 @@
 # Dhanvantari Clinic ERP — Comprehensive User Guide
 
-Welcome to the **Dhanvantari Clinic ERP (Professional OPD Edition)**. This user guide outlines the application workflows, multilingual capabilities, dual login mechanisms, real-time OPD dashboard synchronization, clinical consultation, and billing management.
+Welcome to the **Dhanvantari Clinic ERP (Professional OPD Edition)**. This user guide outlines daily clinic workflows, patient diagnostic reports management, doctor analytics, periodic database backups, multilingual prescriptions, and mobile/tablet PWA capabilities.
 
 ---
 
 ## 1. Getting Started & Multilingual Interface
 
 ### Accessing the System
-- **Web Browser**: Open your modern browser (Chrome, Edge, Firefox) and navigate to `http://127.0.0.1:8000/ui/`.
-- **Desktop Application**: Double-click `start_client.bat` to launch the native PyWebView desktop container.
+- **Web Browser (LAN / Cloud)**: Open Chrome, Edge, or Safari and navigate to `http://<server-ip>:8000/ui/` (or `http://127.0.0.1:8000/ui/` locally).
+- **Desktop Application**: Double-click `start_client.bat` to launch the native PyWebView desktop window.
+- **Mobile / Tablet (PWA)**: Navigate to the clinic URL in Chrome (Android) or Safari (iOS) and tap **Install App** or **Add to Home Screen**.
 
-### Multilingual Support (English, Marathi, Hindi, Arabic)
-The Dhanvantari Clinic ERP supports multi-language operation with dynamic script and layout switching:
+### Multilingual Support & RTL
+The interface supports dynamic language switching with zero page reloads:
 - **Available Languages**:
   - **English (EN)**
   - **मराठी (MR)** — Marathi
   - **हिंदी (HI)** — Hindi
-  - **العربية (AR)** — Arabic (Right-to-Left / RTL layout)
-- **Changing Language**:
-  - **Login Screen**: Click the language selector at the top-right corner to switch languages before logging in.
-  - **Main Application**: Use the persistent language dropdown in the top navigation bar at any time. The entire user interface, status badges, table headers, and system alerts adapt immediately. When Arabic is selected, the layout automatically transforms to native Right-to-Left (RTL) mode.
+  - **العربية (AR)** — Arabic (Native Right-to-Left / RTL layout)
+- **Changing Language**: Use the dropdown on the top-right of the login screen or in the top navigation bar at any time.
 
 ---
 
@@ -28,53 +27,40 @@ The Dhanvantari Clinic ERP supports multi-language operation with dynamic script
 Users can authenticate using either their account password or a one-time password (OTP).
 
 ### Option A: Password Login
-1. On the login screen, select the **Password Login** tab.
+1. Select the **Password** tab.
 2. Enter your **Username** (e.g., `doctor_user`, `receptionist_user`, or `admin_user`).
-3. Enter your **Password**.
-4. Click **Sign In**.
+3. Enter your **Password** and click **Sign In**.
 
-### Option B: OTP Login (Mobile / Username)
+### Option B: OTP Login
 1. Select the **OTP Login** tab.
 2. Enter your registered **Username** or **10-digit Mobile Number**.
-3. Click **Send OTP**.
-   - A 6-digit secure code will be generated (valid for 5 minutes).
-   - *In local/development mode, a notification banner displays the generated OTP for quick testing.*
-4. Enter the 6-digit code in the **Enter 6-Digit OTP** field.
-5. Click **Verify & Sign In**.
-   - *Security Note: The system enforces a maximum of 3 failed verification attempts before the OTP expires.*
-   - If needed, click **Resend OTP** after expiration.
+3. Click **Send OTP** (generates a 6-digit code valid for 5 minutes).
+4. Enter the code in the OTP field and click **Verify & Sign In**.
 
 ---
 
 ## 3. User Roles & Access Matrix
 
-| Role | OPD Queue Access | Patient Registration | Start Consultation | Collect Payments | System Settings & Users |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Admin** | View All | Yes | No (Read-Only) | Yes | Yes |
-| **Receptionist** | View All | Yes | No | Yes | No |
-| **Doctor** | Own Assigned Queue | Yes | Yes (Full Rx) | Optional (Configurable) | No |
-| **Doctor_All** | View & Manage All | Yes | Yes (Any Patient) | Optional (Configurable) | No |
+| Role | OPD Queue Access | Patient Registration | Start Consultation | View Doctor Reports | Audit Logs | Backup & Restore |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Admin** | View All | Yes | No (Read-Only) | Yes | Full View | Yes |
+| **Receptionist** | View All | Yes | No | No | No | No |
+| **Doctor** | Own Assigned Queue | Yes | Yes (Full Rx) | Yes | Full View | Yes |
+| **Doctor_All** | View & Manage All | Yes | Yes (Any Patient) | Yes | Full View | Yes |
 
 ---
 
 ## 4. Today's OPD Dashboard & Real-Time Synchronization
 
-The **Today / OPD** dashboard serves as the central operational hub for receptionists, nurses, and doctors.
-
-### Live 5-Metric KPI Summary
-The top metric bar provides real-time counts of today's patient pipeline:
-1. **Today's Patients**: Total patient visits scheduled or recorded for today.
-2. **Checked In**: Patients currently waiting in the clinic lobby for consultation.
-3. **In Consultation**: Patients currently inside the doctor's cabin.
-4. **Completed Patients**: Patients whose consultations have concluded today.
-5. **Scheduled**: Patients booked for today who have not yet checked in.
-
-### Runtime Synchronization (No Manual Refresh Required)
-- Every action taken by a doctor (such as starting a consultation or completing a visit) or receptionist (such as patient registration, booking, or check-in) is automatically synchronized across all open screens within **3 seconds**.
-- When a doctor completes a consultation:
-  - The patient status instantly changes to **Completed**.
-  - The **Completed Patients** counter increments immediately.
-  - The patient remains in the Today's list with a green **Completed** badge, enabling receptionists to collect payments or print prescriptions.
+The **Today / OPD** dashboard serves as the central operational hub:
+- **Live 5-Metric KPI Summary**:
+  - `Today's Patients`: Total patient visits scheduled or recorded for today.
+  - `Checked In`: Patients currently waiting in the clinic lobby.
+  - `In Consultation`: Patients currently inside the doctor's cabin.
+  - `Completed Patients`: Patients whose consultations have concluded today.
+  - `Scheduled`: Patients booked for today who have not yet checked in.
+- **3-Second Auto-Sync**: Updates occur automatically without manual page refreshing.
+- **Doctor Direct Check-In**: Doctors can check in arriving scheduled patients directly from their dashboard.
 
 ---
 
@@ -82,86 +68,137 @@ The top metric bar provides real-time counts of today's patient pipeline:
 
 ### A. New Patient Registration & OPD Visit
 1. Click **+ New Patient** on the top action bar.
-2. Fill in the patient demographics: Full Name, Age/DOB, Gender, and 10-digit Mobile Number.
-3. In a multi-doctor clinic, select the **Consulting Doctor**.
-4. (Optional) Record referral details (e.g., Referred by Doctor, Hospital, or Patient).
-5. Click **Save Patient**.
-   - In a multi-doctor clinic, an OPD visit is created with status **Scheduled**.
-   - When the patient arrives in the waiting area, click **Check-in**. The status updates to **Waiting / Checked In** with a daily OPD token.
+2. Fill in the demographics: Name, Age, Gender, and 10-digit Mobile Number.
+3. Select the **Consulting Doctor** and optional referral information.
+4. Click **Save Patient**. When the patient arrives in the waiting area, click **Check-in** to issue a token.
 
 ### B. Finding Existing Patients & Follow-Up Visits
-1. Click **Find Patient**.
-2. Search by mobile number, patient name, or Patient ID.
-3. Click **Start Visit** to register today's encounter without duplicating the patient profile. Prior clinical history is preserved.
-
-### C. Booking Appointments
-1. Navigate to the **Appointments** tab or click **Book Appointment**.
-2. Select the patient, assigned doctor, date, and appointment slot.
-3. The visit appears in the **Scheduled** category and transitions to active queue once checked in.
+1. Click **Find Patient** and search by mobile number, name, or Patient ID.
+2. Click **Start Visit** to register today's encounter while preserving past medical history.
 
 ---
 
 ## 6. Doctor Consultation Workflow
 
-### A. Patient Queue & Check-In
+### A. Opening Consultation
 1. Navigate to **Today / OPD**.
-2. Filter is automatically scoped to your assigned patients (or all patients if role is `Doctor_All`).
-3. If an arriving patient is in "Scheduled" status, click the **Check-in** button to move them into your active queue.
-4. Click on any patient with status **Waiting / Checked In** to open the consultation workspace.
+2. Click on any patient with status **Waiting / Checked In** to open the consultation workspace.
 
-### B. Recording Clinical Notes
-1. **Vitals Recording**: Review or record Blood Pressure, Pulse, Temperature, Weight, Height, SpO2, and Respiratory Rate (BMI calculates automatically).
-2. **Chief Complaints & History**: Document presenting symptoms, duration, and clinical history.
-3. **Examination & Diagnosis**: Input systemic findings and provisional/differential diagnosis.
-4. **Prescription (Rx)**:
-   - Search or input medicine brand names.
-   - Enter dosage (e.g., 500mg, 1 tablet), frequency/timing (e.g., 1-0-1), food relationship (After Food / Before Food), and duration (e.g., 5 days).
-   - Enter specific patient instructions.
-5. **Advice & Follow-Up**: Enter general care advice, dietary precautions, and recommended follow-up date.
-
-### C. Completing the Consultation
-1. Click **Complete Consultation**.
-2. The consultation is permanently saved, the visit status updates to **Completed**, and an invoice is automatically queued for billing.
+### B. Clinical Documentation
+1. **Vitals Recording**: Review or record Blood Pressure, Pulse, Temperature, Weight, Height, and SpO2 (BMI calculates automatically).
+2. **Patient History & Past Reports**: Click **History** to view previous consultation prescriptions or **Reports** to inspect lab/scan documents.
+3. **Prescription (Rx)**: Input medicine names, dosage, frequency (e.g., 1-0-1), food relationship, duration, and patient instructions.
+4. **Follow-Up Scheduling**: Pick a recommended follow-up date.
+5. Click **Complete Consultation** to finalize the clinical encounter.
 
 ---
 
 ## 7. Multilingual Prescription Generation
 
-Prescriptions can be printed or exported as high-fidelity PDFs in multiple regional languages:
-
-1. Click **Print Prescription** on the consultation screen or from the Today's OPD queue.
-2. A **Print Prescription Language** dialog appears with available language choices:
-   - **English Prescription**
-   - **मराठी प्रिस्क्रिप्शन (Marathi)**
-   - **हिंदी प्रिस्क्रिप्शन (Hindi)**
-   - **وصفة طبية بالعربية (Arabic)**
-3. **Pharmaceutical Safety Rule**:
-   - **Medicine Names**: Maintained in **English/Latin script** (e.g., *Paracetamol 650mg*, *Amoxicillin 500mg*) to guarantee patient safety, eliminate pharmacy dispensing errors, and comply with drug naming regulations.
-   - **Localized Content**: All section titles (Chief Complaints, Diagnosis, Rx, Dosage, Food Relation, Timing, Duration, Instructions, Vitals, Doctor Signature, Follow-up) are rendered in the selected language.
-   - **Arabic RTL**: Renders right-to-left layout with contextual Arabic character shaping.
-4. The generated PDF opens in a new tab ready for printing or saving.
+Prescriptions can be printed or exported as high-fidelity PDFs:
+1. Click **Print Prescription** on the consultation screen or from the OPD queue.
+2. Choose your preferred language: **English**, **मराठी**, **हिंदी**, or **العربية**.
+3. **Pharmaceutical Safety Guard**: Medicine brand names strictly remain in English/Latin script to prevent dispensing errors, while all clinical findings, directions, vitals, and instructions are localized.
 
 ---
 
-## 8. Billing & Payment Collection
+## 8. Patient Diagnostic & Lab Reports
 
-1. When a consultation is completed, it becomes immediately available in the **Billing** section.
-2. Receptionists or authorized staff can locate the patient invoice either by:
-   - Clicking **Collect Payment** directly on the patient's card in **Today's OPD**.
-   - Navigating to the **Billing** tab and searching by Patient ID or Invoice number.
-3. Choose the payment mode: **Cash**, **Card**, **UPI / QR Code**, or **Bank Transfer**.
-4. Enter the amount collected (supports Full, Partial, or Pending payments).
-5. Click **Record Payment**. An itemized receipt can be printed for the patient.
+Dhanvantari Clinic ERP provides centralized storage for diagnostic reports directly linked to patient history.
+
+### A. Accessing Reports
+- In **Doctor Consultation**: Click the **Reports** or **+ Upload Report** button on the patient banner.
+- In **Today's Queue** or **Patient Directory**: Click **History** on any patient row, then select **2. Diagnostic & Lab Reports**.
+
+### B. Upload Methods (4 Options)
+Click **+ Upload / Link Report** to open the upload modal:
+1. **File Upload**: Choose a PDF, JPG, PNG, WEBP, or DOCX document (up to 25MB).
+2. **Google Drive Link**: Paste any shareable Google Drive link (e.g. `https://drive.google.com/file/d/.../view`). The system automatically converts it into an embedded preview.
+3. **Camera / Mobile Scan**: On smartphones or tablets, tapping this option directly launches the device camera to photograph paper lab reports.
+4. **Cloud / Web Link**: Attach external URLs from hospital portals or Dropbox.
+
+### C. In-App Preview & Downloads
+- Click **View** on any report card to open an instant in-modal preview (interactive PDF viewer, full-screen image viewer, or Google Drive embed).
+- Click **Download** to save a copy locally.
 
 ---
 
-## 9. Troubleshooting & FAQ
+## 9. Doctor Reports & Clinical Analytics
 
-- **Q: Why did today's patient count not drop after consultation?**
-  - *A: This is by design. "Today's Patients" reflects the total daily footfall. Completed patients transition to the "Completed Patients" metric and display a green "Completed" badge.*
-- **Q: Can a doctor check in a patient directly?**
-  - *A: Yes. Doctors can check in any scheduled patient assigned to them directly from their Today's OPD view.*
-- **Q: What happens if an OTP expires?**
-  - *A: OTPs expire after 5 minutes. Click "Resend OTP" to generate a fresh verification code.*
-- **Q: Are Marathi and Hindi fonts bundled?**
-  - *A: Yes. The system leverages Devanagari typography (`Nirmala.ttc`) and TrueType Arabic fonts with automatic bidirectional shaping.*
+Clinicians can monitor practice trends via the dedicated **Reports** tab (available to `Doctor` and `Doctor_All` roles):
+1. **Date Filtering**: Select custom date ranges (Today, This Week, This Month, or custom date ranges).
+2. **Report Categories**:
+   - **OPD Summary**: Consultation counts by visit type (General, Follow-up, Emergency, Specialist).
+   - **Follow-Up Tracker**: Categorizes patients whose follow-ups are upcoming, due today, or overdue with 1-click WhatsApp/Call links.
+   - **Top Diagnoses & Symptoms**: Disease frequency ranking to identify prevalent local conditions.
+   - **Most Prescribed Medicines**: Identifies top drugs and frequency.
+   - **Revenue Breakdown**: Financial collections categorized by payment mode (Cash, UPI, Card).
+   - **Referrals**: Patient volume attributed to referring doctors or facilities.
+3. **Export to CSV**: Click **Export CSV** on any report to download structured data for Excel or clinical audits.
+
+---
+
+## 10. Audit Trail & Compliance
+
+To meet HIPAA § 164.312(b) and India DPDP Act 2023 technical safeguards:
+- **Access**: Available to **Admin** and **Doctor** roles under the **Audit Trail** tab.
+- **Log Verification**: Tracks all logins, logouts, patient views, prescription prints, report uploads, and database backups.
+- **Filter**: Filter by Module (`AUTH`, `PATIENT`, `CONSULTATION`, `REPORTS`, `SYSTEM`), action type, date range, or staff username.
+
+---
+
+## 11. WhatsApp-Style Periodic Database Backup & Restore
+
+Protect clinic data against hardware failures, PC crashes, or OS reinstallation.
+
+### A. Automated Periodic Daily Backup
+- When the clinic system runs, it automatically verifies if 24 hours have elapsed since the last backup.
+- It automatically creates a snapshot archive (`.dhanbackup`) in `backups/{tenant_id}/` and maintains a rolling 7-day retention.
+
+### B. Manual Backup ("Backup Now")
+1. In the sidebar under your profile, click **DB Backup** (or go to **Admin -> Database Backup**).
+2. Click **Backup Now**.
+3. A compressed `.dhanbackup` archive is generated containing all database records and uploaded report files.
+4. Click **Download** to copy the archive to a USB flash drive or cloud storage.
+
+### C. Reinstalling / Disaster Recovery ("Restore from File")
+If moving to a new computer or reinstalling Dhanvantari:
+1. Open the clean installation of Dhanvantari Clinic ERP.
+2. Click **DB Backup** -> **Restore from File**.
+3. Select your `.dhanbackup` file and click **Restore Data**.
+4. The system validates the archive, restores all patient records, consultations, invoices, and diagnostic files, and reloads the application.
+
+---
+
+## 12. Customizing Color Themes
+
+Users can choose from 3 professional healthcare color themes:
+- 🌊 **Ocean Blue** *(Default)*: Trustworthy medical sapphire blue.
+- 🌿 **Emerald Health**: Fresh botanical surgical teal and mint green (reduces eye strain).
+- 👑 **Royal Indigo**: Deep specialty hospital indigo-violet.
+
+**How to switch themes**:
+- **On the Login Screen**: Select your preferred theme from the dropdown before signing in.
+- **Inside the Application**: Click the theme dropdown in the top navigation bar for instant live preview.
+
+---
+
+## 13. Mobile & Tablet Usage (PWA Installation)
+
+Dhanvantari Clinic ERP is a fully responsive **Progressive Web App (PWA)**:
+- **Installation**:
+  - **Chrome (Android / Desktop)**: Tap the **Install App** button on the topbar or select *Install Dhanvantari* from the browser menu.
+  - **Safari (iOS / iPadOS)**: Tap the *Share* button and select *Add to Home Screen*.
+- **Mobile Navigation**: Use the hamburger menu (`fa-bars`) to open the sliding navigation drawer.
+- **Camera Scanning**: Take direct photos of physical prescription slips or lab sheets using the mobile camera upload option.
+
+---
+
+## 14. Troubleshooting & FAQ
+
+- **Q: How do I recover data after formatting my computer?**
+  - *A: Install the application, go to DB Backup -> Restore from File, and upload your latest `.dhanbackup` file.*
+- **Q: Why are medicine brand names in English even when Marathi/Hindi/Arabic is selected?**
+  - *A: This is an intentional pharmaceutical safety standard to eliminate dispensing errors at pharmacies while keeping patient instructions fully localized.*
+- **Q: Does Google Drive preview require logging into Google?**
+  - *A: As long as the Google Drive link has sharing set to "Anyone with the link can view", it renders inside the modal without requiring user login.*
