@@ -7,7 +7,8 @@ from pathlib import Path
 from src.adapters.db.connection import init_db
 from src.adapters.api import (
     router_auth, router_patient, router_queue, router_consultation,
-    router_billing, router_sync, router_vitals, router_settings, router_audit
+    router_billing, router_sync, router_vitals, router_settings, router_audit,
+    router_reports, router_patient_reports, router_backup
 )
 
 app = FastAPI(
@@ -166,6 +167,9 @@ app.include_router(router_sync.router)
 app.include_router(router_vitals.router)
 app.include_router(router_settings.router)
 app.include_router(router_audit.router)
+app.include_router(router_reports.router)
+app.include_router(router_patient_reports.router)
+app.include_router(router_backup.router)
 
 # Mount static directory for frontend assets
 STATIC_DIR = Path(__file__).resolve().parent / "static"

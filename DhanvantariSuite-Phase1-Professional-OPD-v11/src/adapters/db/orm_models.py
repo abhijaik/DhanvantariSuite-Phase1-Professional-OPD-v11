@@ -239,3 +239,30 @@ class MedicineORM(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class PatientReportORM(Base):
+    __tablename__ = "patient_reports"
+    __table_args__ = (
+        Index("ix_patient_reports_tenant_branch", "tenant_id", "branch_id"),
+        Index("ix_patient_reports_patient", "tenant_id", "patient_id"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(String(36), index=True)
+    branch_id: Mapped[str] = mapped_column(String(36), index=True)
+    patient_id: Mapped[str] = mapped_column(String(36), ForeignKey("patients.id"), index=True)
+    uploaded_by_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"))
+    uploaded_by_name: Mapped[str] = mapped_column(String(100))
+    report_title: Mapped[str] = mapped_column(String(200))
+    report_type: Mapped[str] = mapped_column(String(50))  # Lab Report, Radiology/X-Ray, Pathology, Ultrasound, ECG, Prescription/Discharge, Other
+    report_date: Mapped[date] = mapped_column(Date)
+    source_type: Mapped[str] = mapped_column(String(30))  # FILE_UPLOAD, GOOGLE_DRIVE, EXTERNAL_URL, CAMERA_SCAN
+    file_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    file_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    file_size_bytes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    mime_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    external_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+

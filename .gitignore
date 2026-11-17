@@ -17,3 +17,8 @@ htmlcov/
 certs/
 *.pem
 *.key
+backups/
+*.dhanbackup
+uploads/
+**/uploads/
+**/backups/

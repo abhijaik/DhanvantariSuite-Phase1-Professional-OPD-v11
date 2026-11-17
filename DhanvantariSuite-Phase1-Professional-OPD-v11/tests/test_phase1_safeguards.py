@@ -267,7 +267,11 @@ def test_session_inactivity_timeout_handling(client):
     assert '15 minutes of inactivity' in timeout_log['summary']
 
     # Verify frontend static file contains 15-minute inactivity constants and listeners
-    with open('src/static/index.html', 'r', encoding='utf-8') as f:
+    from pathlib import Path
+    static_file = Path(__file__).resolve().parent.parent / "src" / "static" / "index.html"
+    if not static_file.exists():
+        static_file = Path("src/static/index.html")
+    with open(static_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
     assert "INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000" in html_content
     assert "INACTIVITY_WARNING_MS = 14 * 60 * 1000" in html_content
@@ -291,9 +295,11 @@ def test_comprehensive_audit_logging(client):
     doc_h = get_auth_header(client, 'doctor_sec', 'secpass123')
     rec_h = get_auth_header(client, 'recep_sec', 'secpass123')
 
-    # 1. Non-admin is blocked from reading audit logs
-    unauth_audit = client.get('/api/audit-logs', headers=doc_h)
+    # 1. Receptionist is blocked from reading audit logs; Doctor and Admin are authorized
+    unauth_audit = client.get('/api/audit-logs', headers=rec_h)
     assert unauth_audit.status_code == 403
+    doc_audit = client.get('/api/audit-logs', headers=doc_h)
+    assert doc_audit.status_code == 200
 
     # 2. Failed login generates audit log
     client.post('/api/auth/login', data={'username': 'admin_sec', 'password': 'wrongpassword'}, headers={'X-Tenant-ID': 'safe-tenant', 'X-Branch-ID': 'safe-branch'})

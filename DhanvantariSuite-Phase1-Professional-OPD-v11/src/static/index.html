@@ -2,14 +2,45 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dhanvantari">
 <title>Dhanvantari Clinic ERP</title>
+<link rel="manifest" href="/ui/manifest.json">
+<link rel="icon" type="image/png" href="/ui/icon-192.png">
+<link rel="apple-touch-icon" href="/ui/icon-192.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-:root{
+:root, [data-theme="ocean"]{
   --blue:#2563eb;--blue2:#1d4ed8;--green:#059669;--red:#dc2626;--amber:#d97706;
   --purple:#7c3aed;--cyan:#0891b2;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
   --bg:#f8fafc;--card:#ffffff;
+  --nav-active-bg:#edf4ff;
+  --input-focus-border:#93c5fd;
+  --input-focus-shadow:#eff6ff;
+  --login-card-border:#e2e8f0;
+}
+
+[data-theme="emerald"]{
+  --blue:#0d9488;--blue2:#0f766e;--green:#059669;--red:#dc2626;--amber:#d97706;
+  --purple:#0284c7;--cyan:#0d9488;--ink:#0f172a;--muted:#475569;--line:#e2e8f0;
+  --bg:#f4f9f7;--card:#ffffff;
+  --nav-active-bg:#e6f7f5;
+  --input-focus-border:#5eead4;
+  --input-focus-shadow:#f0fdfa;
+  --login-card-border:#ccfbf1;
+}
+
+[data-theme="indigo"]{
+  --blue:#4f46e5;--blue2:#4338ca;--green:#059669;--red:#dc2626;--amber:#d97706;
+  --purple:#7c3aed;--cyan:#0891b2;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+  --bg:#f8f9fc;--card:#ffffff;
+  --nav-active-bg:#eef2ff;
+  --input-focus-border:#a5b4fc;
+  --input-focus-shadow:#eef2ff;
+  --login-card-border:#e0e7ff;
 }
 *{box-sizing:border-box}
 body{
@@ -19,7 +50,7 @@ body{
   background:var(--bg);
   color:var(--ink);
 }
-button,input,select,textarea{font:inherit}
+button,input,select,textarea{font:inherit;touch-action:manipulation}
 .hidden{display:none!important}
 #app{min-height:100vh}
 .layout{display:flex;min-height:100vh}
@@ -39,7 +70,7 @@ button,input,select,textarea{font:inherit}
   display:flex;align-items:center;gap:10px;transition:all .15s;
 }
 .nav button i{width:18px;text-align:center}
-.nav button.active,.nav button:hover{background:#edf4ff;color:var(--blue)}
+.nav button.active,.nav button:hover{background:var(--nav-active-bg, #edf4ff);color:var(--blue)}
 .profile{border-top:1px solid var(--line);padding:14px 8px 4px}
 .profile b{display:block;font-size:14px}
 .profile small{color:var(--muted);font-size:12px}
@@ -54,11 +85,13 @@ button,input,select,textarea{font:inherit}
 .topbar-right{display:flex;align-items:center;gap:12px}
 .page-title{font-size:20px;font-weight:800}
 .status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.lang-select{
+.lang-select, .theme-select{
   border:1px solid var(--line);background:#f8fafc;color:var(--ink);
   border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600;
-  cursor:pointer;outline:none;
+  cursor:pointer;outline:none;transition:border-color .15s ease, box-shadow .15s ease;
 }
+.lang-select:hover, .theme-select:hover{border-color:var(--blue)}
+.lang-select:focus, .theme-select:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--nav-active-bg, #eff6ff)}
 .content{padding:24px;max-width:1500px;margin:auto}
 
 /* Grids & Cards */
@@ -103,7 +136,7 @@ button,input,select,textarea{font:inherit}
 .patient-head h2{margin:0;font-size:20px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .chip{font-size:11px;padding:4px 8px;border-radius:99px;background:#f1f5f9;color:#475569;display:inline-flex;align-items:center}
-.chip.blue{background:#eff6ff;color:#1d4ed8}
+.chip.blue{background:var(--nav-active-bg, #eff6ff);color:var(--blue2, #1d4ed8)}
 .chip.green{background:#ecfdf5;color:#047857}
 .chip.amber{background:#fffbeb;color:#92400e}
 .chip.cyan{background:#ecfeff;color:#0e7490}
@@ -130,8 +163,8 @@ button,input,select,textarea{font:inherit}
 .visit{border-left:3px solid #c7d2fe;background:#f8fafc;padding:11px;border-radius:0 9px 9px 0}
 
 /* Login */
-.login{position:fixed;inset:0;background:linear-gradient(135deg,#eff6ff,#f8fafc);display:grid;place-items:center;z-index:50}
-.loginbox{width:min(440px,92vw);background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(15,23,42,.12)}
+.login{position:fixed;inset:0;background:linear-gradient(135deg,var(--nav-active-bg, #eff6ff),var(--bg, #f8fafc));display:grid;place-items:center;z-index:50}
+.loginbox{width:min(440px,92vw);background:#fff;border:1px solid var(--login-card-border, var(--line));border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(15,23,42,.12)}
 .loginbox h1{margin:0 0 4px;font-size:22px}
 .loginbox p{color:var(--muted);margin:0 0 18px;font-size:13px}
 .login-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:18px}
@@ -147,7 +180,7 @@ button,input,select,textarea{font:inherit}
 .medrow{display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr 1.4fr 36px;gap:6px;margin-bottom:7px}
 .med-suggest-box{position:absolute;top:calc(100% + 4px);left:0;min-width:320px;max-width:460px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 14px 30px rgba(15,23,42,.15);max-height:240px;overflow-y:auto;z-index:99}
 .med-suggest-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:13px}
-.med-suggest-item:hover,.med-suggest-item.active{background:#edf4ff;color:var(--blue2)}
+.med-suggest-item:hover,.med-suggest-item.active{background:var(--nav-active-bg, #edf4ff);color:var(--blue2)}
 .med-suggest-item .med-meta{font-size:11px;color:#64748b}
 .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#94a3b8;margin-right:6px}
 .status-scheduled{background:#f1f5f9;color:#475569}
@@ -187,11 +220,31 @@ html[dir="rtl"] .stat.stat-scheduled{border-right-color:#94a3b8}
   .row-actions{justify-content:flex-start}
   .formgrid{grid-template-columns:1fr}
 }
+.mobile-menu-btn{display:none}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:25}
+.sidebar-backdrop.open{display:block}
+@media(max-width:900px){
+  .medrow{grid-template-columns:1fr 1fr}
+  .med-suggest-box{min-width:240px;max-width:90vw}
+}
 @media(max-width:640px){
+  .mobile-menu-btn{display:inline-flex}
+  .sidebar{width:240px;z-index:30;transform:translateX(-100%);transition:transform .2s ease}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar.open .brand strong,.sidebar.open .nav button span,.sidebar.open .profile div{display:block}
+  html[dir="rtl"] .sidebar{transform:translateX(100%)}
+  html[dir="rtl"] .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0!important;margin-right:0!important;width:100%}
   .content{padding:14px}
   .grid-5,.grid-4{grid-template-columns:1fr}
-  .topbar{padding:0 14px}
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-right .status{display:none}
+  .page-title{font-size:17px}
+  .patient-head{flex-direction:column}
   .queue-row{grid-template-columns:1fr}
+  .modal{padding:10px}
+  .modalbox{padding:14px;border-radius:12px}
+  .btn{min-height:40px}
 }
 </style>
 </head>
@@ -200,17 +253,24 @@ html[dir="rtl"] .stat.stat-scheduled{border-right-color:#94a3b8}
 <!-- Login Screen -->
 <div id="login" class="login">
   <div class="loginbox">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:8px">
       <div>
         <h1 id="lbl-login-title">Dhanvantari Clinic ERP</h1>
         <p id="lbl-login-sub">Simple OPD • Consultation • Billing</p>
       </div>
-      <select class="lang-select" onchange="setLanguage(this.value)" id="login-lang-select" title="Change Language">
-        <option value="en">English</option>
-        <option value="mr">मराठी</option>
-        <option value="hi">हिंदी</option>
-        <option value="ar">العربية</option>
-      </select>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select class="theme-select" onchange="setTheme(this.value)" id="login-theme-select" title="Change Color Theme" aria-label="Color Theme">
+          <option value="ocean">🌊 Ocean Blue</option>
+          <option value="emerald">🌿 Emerald Health</option>
+          <option value="indigo">👑 Royal Indigo</option>
+        </select>
+        <select class="lang-select" onchange="setLanguage(this.value)" id="login-lang-select" title="Change Language" aria-label="Change Language">
+          <option value="en">English</option>
+          <option value="mr">मराठी</option>
+          <option value="hi">हिंदी</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
     </div>
 
     <!-- Inactivity Timeout Banner (HIPAA / DPDP Safeguards) -->
@@ -287,7 +347,8 @@ html[dir="rtl"] .stat.stat-scheduled{border-right-color:#94a3b8}
 <!-- Main App Layout -->
 <div id="app" class="hidden">
   <div class="layout">
-    <aside class="sidebar">
+    <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+    <aside id="app-sidebar" class="sidebar">
       <div class="brand">
         <span><i class="fa-solid fa-plus"></i></span>
         <strong>Dhanvantari<br><small style="font-size:11px;font-weight:600;color:var(--muted)">Clinic ERP</small></strong>
@@ -296,7 +357,10 @@ html[dir="rtl"] .stat.stat-scheduled{border-right-color:#94a3b8}
       <div class="profile">
         <b id="me-name"></b>
         <small id="me-role"></small>
-        <button class="btn small warn" style="width:100%;margin-top:10px" onclick="logout()">
+        <button type="button" id="btn-sidebar-backup" class="btn small" style="width:100%;margin-top:8px" onclick="openBackupModal()">
+          <i class="fa-solid fa-database"></i> <span>DB Backup</span>
+        </button>
+        <button class="btn small warn" style="width:100%;margin-top:6px" onclick="logout()">
           <i class="fa-solid fa-right-from-bracket"></i> <span id="lbl-logout">Logout</span>
         </button>
       </div>
@@ -304,9 +368,22 @@ html[dir="rtl"] .stat.stat-scheduled{border-right-color:#94a3b8}
 
     <main class="main">
       <header class="topbar">
-        <div class="page-title" id="page-title">Today / OPD</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button type="button" id="mobile-menu-btn" class="btn small mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-title" id="page-title">Today / OPD</div>
+        </div>
         <div class="topbar-right">
-          <select class="lang-select" onchange="setLanguage(this.value)" id="topbar-lang-select" title="Change Language">
+          <button type="button" id="btn-install-pwa" class="btn small primary hidden" onclick="installPwa()">
+            <i class="fa-solid fa-mobile-screen-button"></i> <span>Install App</span>
+          </button>
+          <select class="theme-select" onchange="setTheme(this.value)" id="topbar-theme-select" title="Change Color Theme" aria-label="Color Theme">
+            <option value="ocean">🌊 Ocean Blue</option>
+            <option value="emerald">🌿 Emerald Health</option>
+            <option value="indigo">👑 Royal Indigo</option>
+          </select>
+          <select class="lang-select" onchange="setLanguage(this.value)" id="topbar-lang-select" title="Change Language" aria-label="Change Language">
             <option value="en">English (EN)</option>
             <option value="mr">मराठी (MR)</option>
             <option value="hi">हिंदी (HI)</option>
@@ -335,6 +412,7 @@ let currentAuthMode = 'password';
 let lastOtpIdentifier = '';
 let todayQueueData = [];
 let currentLang = localStorage.getItem('dhan_lang') || 'en';
+let currentTheme = localStorage.getItem('dhan_theme') || 'ocean';
 
 // --- COMPREHENSIVE I18N DICTIONARY ---
 // Extensible for Marathi, Hindi, Arabic, English
@@ -616,6 +694,20 @@ function setLanguage(lang){
   }
 }
 
+function setTheme(theme){
+  currentTheme = ['ocean', 'emerald', 'indigo'].includes(theme) ? theme : 'ocean';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  localStorage.setItem('dhan_theme', currentTheme);
+  const selLogin = document.getElementById('login-theme-select');
+  if(selLogin) selLogin.value = currentTheme;
+  const selTop = document.getElementById('topbar-theme-select');
+  if(selTop) selTop.value = currentTheme;
+  const themeColors = { ocean: '#2563eb', emerald: '#0d9488', indigo: '#4f46e5' };
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if(metaTheme) metaTheme.setAttribute('content', themeColors[currentTheme] || '#2563eb');
+}
+setTheme(currentTheme);
+
 function updateStaticLanguageLabels(){
   const s = (id, k) => { const el = document.getElementById(id); if(el) el.textContent = t(k); };
   s('lbl-login-title', 'app_title');
@@ -653,9 +745,13 @@ function toast(m){
 }
 
 async function api(url, opt = {}){
+  const h = { ...headers(), ...(opt.headers || {}) };
+  if(opt.body instanceof FormData){
+    delete h['Content-Type'];
+  }
   const r = await fetch(API_BASE + url, {
     ...opt,
-    headers: { ...headers(), ...(opt.headers || {}) }
+    headers: h
   });
   if(r.status === 401){
     logout();
@@ -909,13 +1005,20 @@ async function logout(isInactivityTimeout = false){
 }
 
 async function boot(){
+  setTheme(currentTheme);
   document.getElementById('me-name').textContent = name;
   document.getElementById('me-role').textContent = role;
+  const backupBtn = document.getElementById('btn-sidebar-backup');
+  if(backupBtn){
+    backupBtn.classList.toggle('hidden', !['ADMIN', 'DOCTOR', 'DOCTOR_ALL'].includes(role));
+  }
   startInactivityMonitor();
   await loadDoctors();
   renderNav();
   await show('today');
   startPolling();
+  // WhatsApp-style automatic daily backup check
+  api('/api/backup/auto-check', { method: 'POST' }).catch(() => {});
 }
 
 async function loadDoctors(){
@@ -931,9 +1034,12 @@ function renderNav(){
   ];
   if(role === 'DOCTOR') items.push(['consult', t('consult_tab'), 'fa-user-doctor']);
   items.push(['billing', t('billing_tab'), 'fa-receipt']);
+  if(['DOCTOR', 'DOCTOR_ALL'].includes(role)) items.push(['reports', 'Reports', 'fa-chart-column']);
+  if(['ADMIN', 'DOCTOR', 'DOCTOR_ALL'].includes(role)) {
+    items.push(['audit', t('audit_tab') || 'Audit Trail', 'fa-shield-halved']);
+  }
   if(role === 'ADMIN') {
     items.push(['admin', t('admin_tab'), 'fa-gear']);
-    items.push(['audit', t('audit_tab'), 'fa-shield-halved']);
   }
 
   nav.innerHTML = items.map(x =>
@@ -944,6 +1050,7 @@ function renderNav(){
 }
 
 async function show(tab){
+  closeMobileSidebar();
   currentTab = tab;
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   const titles = {
@@ -951,6 +1058,7 @@ async function show(tab){
     patients: t('patients_tab'),
     consult: t('consult_tab'),
     billing: t('billing_tab'),
+    reports: 'Doctor Reports',
     admin: t('admin_tab'),
     audit: t('audit_tab')
   };
@@ -960,6 +1068,7 @@ async function show(tab){
   if(tab === 'patients') return renderPatients(c);
   if(tab === 'consult') return renderConsult(c);
   if(tab === 'billing') return renderBilling(c);
+  if(tab === 'reports') return renderReports(c);
   if(tab === 'admin') return renderAdmin(c);
   if(tab === 'audit') return renderAudit(c);
 }
@@ -1606,9 +1715,17 @@ async function renderConsult(c){
               <span class="chip blue">${currentAppt.visit_type}</span>
               ${currentAppt.queue_token ? `<span class="chip amber">${currentAppt.queue_token}</span>` : '<span class="chip green">Direct visit</span>'}
             </div>
-            <button type="button" class="btn small" style="margin-top:10px" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}')">
-              <i class="fa-solid fa-clock-rotate-left"></i> Patient History
-            </button>
+            <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+              <button type="button" class="btn small" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}', 'consultations')">
+                <i class="fa-solid fa-clock-rotate-left"></i> History
+              </button>
+              <button type="button" class="btn small" onclick="openPatientHistoryModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}', 'reports')">
+                <i class="fa-solid fa-file-waveform"></i> Reports
+              </button>
+              <button type="button" class="btn small primary" onclick="openUploadReportModal('${currentPatient.id}','${(currentPatient.full_name||'').replace(/'/g,"\\'")}')">
+                <i class="fa-solid fa-cloud-arrow-up"></i> + Upload Report
+              </button>
+            </div>
           </div>
         </div>
         <div class="consult-section">
@@ -2024,29 +2141,82 @@ async function saveVitals(e, id){
   }
 }
 
-async function openPatientHistoryModal(pid, pname){
+// --- PATIENT HISTORY & LAB REPORTS MODAL ---
+let currentHistoryActiveTab = 'consultations';
+
+function formatBytes(bytes){
+  if(!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const dm = 1;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function extractGoogleDrivePreview(url){
+  if(!url) return '';
+  const m = url.match(/(?:\/d\/|id=)([a-zA-Z0-9_-]{25,})/);
+  if(m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+  return url;
+}
+
+async function openPatientHistoryModal(pid, pname, activeTab = 'consultations'){
+  currentHistoryActiveTab = activeTab;
   openModal(`
-    <div class="modalbox" style="max-width:850px">
+    <div class="modalbox" style="max-width:920px;width:95%">
       <div class="modalhead">
         <div>
-          <h2><i class="fa-solid fa-clock-rotate-left" style="color:var(--blue);margin-right:8px"></i>Patient History</h2>
-          <div class="subtle">${escapeHtml(pname || 'Patient')} • Previous OPD Consultations</div>
+          <h2><i class="fa-solid fa-folder-open" style="color:var(--blue);margin-right:8px"></i>Patient History & Records</h2>
+          <div class="subtle"><b>${escapeHtml(pname || 'Patient')}</b> • Consultations, Vitals & Lab Reports</div>
         </div>
         <button class="close" onclick="closeModal()">×</button>
       </div>
-      <div id="patient-history-content"><div class="empty">Loading patient history...</div></div>
+      <div style="display:flex;gap:8px;border-bottom:2px solid var(--line);margin-bottom:14px">
+        <button type="button" id="tab-btn-consultations" onclick="switchPatientHistoryTab('${pid}','${(pname||'').replace(/'/g,"\\'")}', 'consultations')" class="btn small ${activeTab === 'consultations' ? 'primary' : ''}" style="border-radius:6px 6px 0 0">
+          <i class="fa-solid fa-notes-medical"></i> 1. Consultations History
+        </button>
+        <button type="button" id="tab-btn-reports" onclick="switchPatientHistoryTab('${pid}','${(pname||'').replace(/'/g,"\\'")}', 'reports')" class="btn small ${activeTab === 'reports' ? 'primary' : ''}" style="border-radius:6px 6px 0 0">
+          <i class="fa-solid fa-file-waveform"></i> 2. Diagnostic & Lab Reports
+        </button>
+      </div>
+      <div id="patient-history-content"><div class="empty">Loading...</div></div>
     </div>
   `);
+  if(activeTab === 'reports'){
+    await loadPatientReports(pid, pname);
+  } else {
+    await loadPatientConsultations(pid, pname);
+  }
+}
+
+async function switchPatientHistoryTab(pid, pname, tab){
+  currentHistoryActiveTab = tab;
+  const btnC = document.getElementById('tab-btn-consultations');
+  const btnR = document.getElementById('tab-btn-reports');
+  if(tab === 'reports'){
+    btnC?.classList.remove('primary');
+    btnR?.classList.add('primary');
+    await loadPatientReports(pid, pname);
+  } else {
+    btnR?.classList.remove('primary');
+    btnC?.classList.add('primary');
+    await loadPatientConsultations(pid, pname);
+  }
+}
+
+async function loadPatientConsultations(pid, pname){
+  const c = document.getElementById('patient-history-content');
+  if(!c) return;
+  c.innerHTML = '<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading consultation history...</div>';
   try {
     const h = await api('/api/consultations/patient/' + pid + '/history');
-    const c = document.getElementById('patient-history-content');
     if(!h || !h.length){
       c.innerHTML = '<div class="empty"><i class="fa-regular fa-folder-open" style="font-size:32px;display:block;margin-bottom:8px"></i>No previous OPD consultations recorded for this patient.</div>';
       return;
     }
     c.innerHTML = `
       <div class="subtle" style="margin-bottom:12px">Total past visits: <b>${h.length}</b></div>
-      <div class="history" style="gap:16px">${h.map(item => {
+      <div class="history" style="gap:16px;max-height:60vh;overflow-y:auto;padding-right:4px">${h.map(item => {
         const dt = (item.created_at || '').slice(0, 10);
         const tm = (item.created_at || '').slice(11, 16);
         const symp = Array.isArray(item.symptoms) && item.symptoms.length ? item.symptoms.join(', ') : 'None recorded';
@@ -2062,7 +2232,7 @@ async function openPatientHistoryModal(pid, pname){
         if(item.bmi) v.push(`BMI: <b>${item.bmi}</b>`);
         return `
           <div class="card" style="border-left:4px solid var(--blue);padding:16px;background:#fcfdff">
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px;flex-wrap:wrap;gap:8px">
               <div>
                 <span style="font-size:15px;font-weight:800;color:var(--ink)">Visit Date: ${dt} ${tm ? `(${tm})` : ''}</span>
                 <span class="chip blue" style="margin-left:8px">${item.consultation_type || 'General'}</span>
@@ -2083,7 +2253,446 @@ async function openPatientHistoryModal(pid, pname){
       }).join('')}</div>
     `;
   } catch(e){
-    document.getElementById('patient-history-content').innerHTML = `<div class="banner warn">${e.message}</div>`;
+    c.innerHTML = `<div class="banner warn">${e.message}</div>`;
+  }
+}
+
+async function loadPatientReports(pid, pname, categoryFilter = ''){
+  const c = document.getElementById('patient-history-content');
+  if(!c) return;
+  c.innerHTML = '<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading diagnostic & lab reports...</div>';
+  try {
+    const url = `/api/patient-reports/patient/${pid}${categoryFilter ? '?report_type=' + encodeURIComponent(categoryFilter) : ''}`;
+    const reports = await api(url);
+    const categories = ['All', 'Lab Report', 'Radiology / X-Ray', 'Pathology', 'Ultrasound', 'ECG', 'Prescription / Discharge', 'Other'];
+    const filterOptions = categories.map(cat => {
+      const val = cat === 'All' ? '' : cat;
+      const sel = val === categoryFilter ? 'selected' : '';
+      return `<option value="${val}" ${sel}>${cat}</option>`;
+    }).join('');
+
+    let reportsListHtml = '';
+    if(!reports || !reports.length){
+      reportsListHtml = `
+        <div class="empty" style="padding:32px 16px">
+          <i class="fa-solid fa-file-circle-question" style="font-size:36px;display:block;margin-bottom:10px;color:var(--muted)"></i>
+          <b>No diagnostic reports found${categoryFilter ? ' for ' + categoryFilter : ''}.</b>
+          <div class="subtle" style="margin-top:6px">Upload lab results, radiology scans, or attach Google Drive links below.</div>
+          <div style="margin-top:14px">
+            <button class="btn primary small" onclick="openUploadReportModal('${pid}','${(pname||'').replace(/'/g,"\\'")}')">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Upload First Report
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      reportsListHtml = `
+        <div style="display:grid;grid-template-columns:1fr;gap:12px;max-height:56vh;overflow-y:auto;padding-right:4px">
+          ${reports.map(r => {
+            const dt = r.report_date || (r.created_at || '').slice(0, 10);
+            let srcBadge = '';
+            if(r.source_type === 'GOOGLE_DRIVE'){
+              srcBadge = `<span class="chip green"><i class="fa-brands fa-google-drive"></i> Google Drive</span>`;
+            } else if(r.source_type === 'CAMERA_SCAN'){
+              srcBadge = `<span class="chip purple"><i class="fa-solid fa-camera"></i> Camera Scan</span>`;
+            } else if(r.source_type === 'EXTERNAL_URL'){
+              srcBadge = `<span class="chip"><i class="fa-solid fa-link"></i> Web Link</span>`;
+            } else {
+              const sz = formatBytes(r.file_size_bytes);
+              srcBadge = `<span class="chip blue"><i class="fa-solid fa-file-arrow-up"></i> File (${sz})</span>`;
+            }
+
+            const canDelete = ['ADMIN', 'DOCTOR', 'DOCTOR_ALL'].includes(role);
+
+            return `
+              <div class="card" style="padding:14px;background:#fff;border-left:4px solid var(--blue);box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                      <strong style="font-size:15px;color:var(--ink)">${escapeHtml(r.report_title)}</strong>
+                      <span class="chip blue">${escapeHtml(r.report_type)}</span>
+                      ${srcBadge}
+                    </div>
+                    <div class="subtle" style="margin-top:4px;font-size:12px">
+                      <i class="fa-regular fa-calendar"></i> Report Date: <b>${dt}</b> • Uploaded by: <b>${escapeHtml(r.uploaded_by_name || 'Staff')}</b>
+                      ${r.file_name ? ` • <span style="font-family:monospace">${escapeHtml(r.file_name)}</span>` : ''}
+                    </div>
+                    ${r.notes ? `<div style="margin-top:6px;font-size:13px;color:#334155;background:#f8fafc;padding:6px 10px;border-radius:6px"><i class="fa-solid fa-comment-medical" style="color:var(--blue);margin-right:6px"></i>${escapeHtml(r.notes)}</div>` : ''}
+                  </div>
+                  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                    <button class="btn small primary" onclick='viewPatientReport(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
+                      <i class="fa-solid fa-eye"></i> View
+                    </button>
+                    ${r.file_path ? `
+                      <button class="btn small" onclick="downloadPatientReport('${r.id}','${escapeHtml(r.file_name || 'report')}')">
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                    ` : ''}
+                    ${canDelete ? `
+                      <button class="btn small danger" onclick="deletePatientReport('${r.id}','${pid}','${(pname||'').replace(/'/g,"\\'")}')" title="Delete Report">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    c.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-weight:600;font-size:13px">Filter by Category:</label>
+          <select id="reports-category-filter" class="select" style="min-width:180px;padding:6px 10px" onchange="loadPatientReports('${pid}','${(pname||'').replace(/'/g,"\\'")}', this.value)">
+            ${filterOptions}
+          </select>
+        </div>
+        <div>
+          <button class="btn primary small" onclick="openUploadReportModal('${pid}','${(pname||'').replace(/'/g,"\\'")}')">
+            <i class="fa-solid fa-cloud-arrow-up"></i> + Upload / Link Report
+          </button>
+        </div>
+      </div>
+      ${reportsListHtml}
+    `;
+  } catch(e){
+    c.innerHTML = `<div class="banner warn">${e.message}</div>`;
+  }
+}
+
+function openUploadReportModal(pid, pname){
+  openModal(`
+    <div class="modalbox" style="max-width:580px;width:95%">
+      <div class="modalhead">
+        <div>
+          <h2><i class="fa-solid fa-cloud-arrow-up" style="color:var(--blue);margin-right:8px"></i>Upload Patient Report</h2>
+          <div class="subtle">Attach lab, radiology or scan records for <b>${escapeHtml(pname || 'Patient')}</b></div>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <form id="form-upload-report" onsubmit="submitPatientReportUpload(event, '${pid}', '${(pname||'').replace(/'/g,"\\'")}')" style="display:grid;gap:14px;margin-top:10px">
+        <div class="field">
+          <label>Report Title <span style="color:red">*</span></label>
+          <input type="text" id="up-title" class="input" placeholder="e.g. Complete Blood Count (CBC), Chest X-Ray, Lipid Profile" required>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Report Category <span style="color:red">*</span></label>
+            <select id="up-category" class="select" required>
+              <option value="Lab Report">Lab Report</option>
+              <option value="Radiology / X-Ray">Radiology / X-Ray</option>
+              <option value="Pathology">Pathology</option>
+              <option value="Ultrasound">Ultrasound / Sonography</option>
+              <option value="ECG">ECG / Echo</option>
+              <option value="Prescription / Discharge">Prescription / Discharge Summary</option>
+              <option value="Other">Other Clinical Document</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Report Date <span style="color:red">*</span></label>
+            <input type="date" id="up-date" class="input" value="${getLocalTodayStr()}" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Report Source / Upload Method <span style="color:red">*</span></label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:6px">
+            <label style="border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px">
+              <input type="radio" name="up-source" value="FILE_UPLOAD" checked onchange="toggleReportSourceType('FILE_UPLOAD')">
+              <span><i class="fa-solid fa-file-pdf" style="color:var(--blue)"></i> File Upload</span>
+            </label>
+            <label style="border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px">
+              <input type="radio" name="up-source" value="GOOGLE_DRIVE" onchange="toggleReportSourceType('GOOGLE_DRIVE')">
+              <span><i class="fa-brands fa-google-drive" style="color:#16a34a"></i> Google Drive</span>
+            </label>
+            <label style="border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px">
+              <input type="radio" name="up-source" value="CAMERA_SCAN" onchange="toggleReportSourceType('CAMERA_SCAN')">
+              <span><i class="fa-solid fa-camera" style="color:#7c3aed"></i> Camera / Scan</span>
+            </label>
+            <label style="border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px">
+              <input type="radio" name="up-source" value="EXTERNAL_URL" onchange="toggleReportSourceType('EXTERNAL_URL')">
+              <span><i class="fa-solid fa-link" style="color:#0284c7"></i> Cloud Link</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Section: File Upload -->
+        <div id="src-sec-file" class="field" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px dashed var(--line)">
+          <label>Select Report File (PDF, Image, Scanned Document)</label>
+          <input type="file" id="up-file" class="input" accept=".pdf,.jpg,.jpeg,.png,.webp,.tiff,.bmp,.docx,.doc">
+          <small class="subtle" style="display:block;margin-top:4px">Max size: 25MB. PDF, JPG, PNG, WEBP, DOCX supported.</small>
+        </div>
+
+        <!-- Section: Camera / Scan -->
+        <div id="src-sec-cam" class="field hidden" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px dashed var(--line)">
+          <label>Capture Document with Device Camera</label>
+          <input type="file" id="up-file-cam" class="input" accept="image/*" capture="environment">
+          <small class="subtle" style="display:block;margin-top:4px">Takes a direct photo of the physical prescription or lab paper on phone/tablet.</small>
+        </div>
+
+        <!-- Section: Google Drive Link -->
+        <div id="src-sec-drive" class="field hidden" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #bbf7d0">
+          <label><i class="fa-brands fa-google-drive" style="color:#16a34a"></i> Google Drive Shareable Link</label>
+          <input type="url" id="up-url-drive" class="input" placeholder="https://drive.google.com/file/d/.../view?usp=sharing">
+          <small class="subtle" style="display:block;margin-top:4px">Ensure 'Anyone with the link can view' is turned on in Google Drive sharing settings.</small>
+        </div>
+
+        <!-- Section: External Link -->
+        <div id="src-sec-ext" class="field hidden" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #bae6fd">
+          <label><i class="fa-solid fa-link" style="color:#0284c7"></i> External Document URL (Dropbox, OneDrive, Hospital Portal)</label>
+          <input type="url" id="up-url-ext" class="input" placeholder="https://...">
+          <small class="subtle" style="display:block;margin-top:4px">Direct link to web-accessible report or cloud drive document.</small>
+        </div>
+
+        <div class="field">
+          <label>Doctor / Clinical Notes (Optional)</label>
+          <textarea id="up-notes" class="input" rows="2" placeholder="Key observations, abnormal parameters, summary..."></textarea>
+        </div>
+
+        <div id="up-error" class="banner warn hidden"></div>
+
+        <div class="actions" style="justify-content:flex-end;gap:8px;margin-top:6px">
+          <button type="button" class="btn" onclick="openPatientHistoryModal('${pid}','${(pname||'').replace(/'/g,"\\'")}', 'reports')">Cancel</button>
+          <button type="submit" id="btn-submit-report" class="btn primary">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Save Report
+          </button>
+        </div>
+      </form>
+    </div>
+  `);
+}
+
+function toggleReportSourceType(type){
+  document.getElementById('src-sec-file')?.classList.toggle('hidden', type !== 'FILE_UPLOAD');
+  document.getElementById('src-sec-cam')?.classList.toggle('hidden', type !== 'CAMERA_SCAN');
+  document.getElementById('src-sec-drive')?.classList.toggle('hidden', type !== 'GOOGLE_DRIVE');
+  document.getElementById('src-sec-ext')?.classList.toggle('hidden', type !== 'EXTERNAL_URL');
+}
+
+async function submitPatientReportUpload(e, pid, pname){
+  e.preventDefault();
+  const errEl = document.getElementById('up-error');
+  const btn = document.getElementById('btn-submit-report');
+  errEl?.classList.add('hidden');
+
+  const title = document.getElementById('up-title')?.value.trim();
+  const category = document.getElementById('up-category')?.value;
+  const reportDate = document.getElementById('up-date')?.value;
+  const notes = document.getElementById('up-notes')?.value.trim();
+  const sourceRadios = document.getElementsByName('up-source');
+  let selectedSource = 'FILE_UPLOAD';
+  for(const r of sourceRadios){
+    if(r.checked){ selectedSource = r.value; break; }
+  }
+
+  if(!title){
+    if(errEl){
+      errEl.textContent = 'Report title is required.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+  try {
+    if(selectedSource === 'FILE_UPLOAD' || selectedSource === 'CAMERA_SCAN'){
+      const fileInput = selectedSource === 'CAMERA_SCAN'
+        ? document.getElementById('up-file-cam')
+        : document.getElementById('up-file');
+      const file = fileInput?.files?.[0];
+      if(!file){
+        throw new Error('Please select or capture a file to upload.');
+      }
+      const formData = new FormData();
+      formData.append('patient_id', pid);
+      formData.append('report_title', title);
+      formData.append('report_type', category);
+      if(reportDate) formData.append('report_date', reportDate);
+      formData.append('source_type', selectedSource);
+      if(notes) formData.append('notes', notes);
+      formData.append('file', file);
+
+      await api('/api/patient-reports/upload-file', {
+        method: 'POST',
+        body: formData
+      });
+    } else {
+      // GOOGLE_DRIVE or EXTERNAL_URL
+      const urlInput = selectedSource === 'GOOGLE_DRIVE'
+        ? document.getElementById('up-url-drive')
+        : document.getElementById('up-url-ext');
+      const extUrl = urlInput?.value.trim();
+      if(!extUrl || !extUrl.startsWith('http')){
+        throw new Error('Please enter a valid URL starting with http:// or https://');
+      }
+
+      await api('/api/patient-reports/link', {
+        method: 'POST',
+        body: JSON.stringify({
+          patient_id: pid,
+          report_title: title,
+          report_type: category,
+          report_date: reportDate || null,
+          source_type: selectedSource,
+          external_url: extUrl,
+          notes: notes
+        })
+      });
+    }
+
+    toast('Report uploaded successfully!');
+    await openPatientHistoryModal(pid, pname, 'reports');
+  } catch(err){
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload & Save Report';
+    if(errEl){
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    } else {
+      toast(err.message);
+    }
+  }
+}
+
+async function viewPatientReport(r){
+  if(typeof r === 'string'){
+    try { r = JSON.parse(r); } catch {}
+  }
+  if(!r) return;
+
+  if(r.source_type === 'GOOGLE_DRIVE' && r.external_url){
+    const previewUrl = extractGoogleDrivePreview(r.external_url);
+    openModal(`
+      <div class="modalbox" style="max-width:900px;width:95%">
+        <div class="modalhead">
+          <div>
+            <h2><i class="fa-brands fa-google-drive" style="color:#16a34a;margin-right:8px"></i>${escapeHtml(r.report_title)}</h2>
+            <div class="subtle">${escapeHtml(r.report_type)} • ${r.report_date || ''}</div>
+          </div>
+          <button class="close" onclick="closeModal()">×</button>
+        </div>
+        <div style="margin-top:10px">
+          <iframe src="${previewUrl}" style="width:100%;height:560px;border:1px solid var(--line);border-radius:8px" allow="autoplay"></iframe>
+        </div>
+        <div class="actions" style="margin-top:12px;justify-content:space-between">
+          <a href="${r.external_url}" target="_blank" rel="noopener noreferrer" class="btn small">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Google Drive
+          </a>
+          <button class="btn" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    `);
+    return;
+  }
+
+  if(r.source_type === 'EXTERNAL_URL' && r.external_url){
+    window.open(r.external_url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  // Local file or camera scan
+  try {
+    toast('Fetching report file...');
+    const res = await fetch(`${API_BASE}/api/patient-reports/${r.id}/file`, {
+      headers: headers()
+    });
+    if(!res.ok){
+      let msg = 'Failed to fetch report file.';
+      try { const e = await res.json(); msg = e.detail || msg; } catch {}
+      throw new Error(msg);
+    }
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const mime = (r.mime_type || blob.type || '').toLowerCase();
+
+    if(mime.includes('image')){
+      openModal(`
+        <div class="modalbox" style="max-width:850px;width:95%">
+          <div class="modalhead">
+            <div>
+              <h2><i class="fa-solid fa-image" style="color:var(--blue);margin-right:8px"></i>${escapeHtml(r.report_title)}</h2>
+              <div class="subtle">${escapeHtml(r.report_type)} • ${r.report_date || ''}</div>
+            </div>
+            <button class="close" onclick="closeModal()">×</button>
+          </div>
+          <div style="text-align:center;padding:12px;background:#0f172a;border-radius:8px;margin-top:10px;max-height:70vh;overflow:auto">
+            <img src="${objUrl}" style="max-width:100%;max-height:65vh;border-radius:6px;object-fit:contain" alt="Report Scan">
+          </div>
+          <div class="actions" style="margin-top:12px;justify-content:space-between">
+            <button class="btn small" onclick="downloadPatientReport('${r.id}','${escapeHtml(r.file_name || 'report.png')}')">
+              <i class="fa-solid fa-download"></i> Download
+            </button>
+            <button class="btn" onclick="closeModal()">Close</button>
+          </div>
+        </div>
+      `);
+    } else {
+      // PDF or document preview
+      openModal(`
+        <div class="modalbox" style="max-width:920px;width:95%">
+          <div class="modalhead">
+            <div>
+              <h2><i class="fa-solid fa-file-pdf" style="color:var(--red);margin-right:8px"></i>${escapeHtml(r.report_title)}</h2>
+              <div class="subtle">${escapeHtml(r.report_type)} • ${r.report_date || ''}</div>
+            </div>
+            <button class="close" onclick="closeModal()">×</button>
+          </div>
+          <div style="margin-top:10px">
+            <iframe src="${objUrl}" style="width:100%;height:580px;border:1px solid var(--line);border-radius:8px"></iframe>
+          </div>
+          <div class="actions" style="margin-top:12px;justify-content:space-between">
+            <button class="btn small" onclick="downloadPatientReport('${r.id}','${escapeHtml(r.file_name || 'report.pdf')}')">
+              <i class="fa-solid fa-download"></i> Download
+            </button>
+            <button class="btn" onclick="closeModal()">Close</button>
+          </div>
+        </div>
+      `);
+    }
+  } catch(err){
+    toast(err.message);
+  }
+}
+
+async function downloadPatientReport(reportId, fileName){
+  try {
+    toast('Preparing download...');
+    const res = await fetch(`${API_BASE}/api/patient-reports/${reportId}/file`, {
+      headers: headers()
+    });
+    if(!res.ok){
+      let msg = 'Failed to download report.';
+      try { const e = await res.json(); msg = e.detail || msg; } catch {}
+      throw new Error(msg);
+    }
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objUrl;
+    a.download = fileName || 'patient_report';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(objUrl);
+    toast('Download complete.');
+  } catch(err){
+    toast(err.message);
+  }
+}
+
+async function deletePatientReport(reportId, pid, pname){
+  if(!confirm('Are you sure you want to delete this report? This action is logged.')) return;
+  try {
+    await api('/api/patient-reports/' + reportId, { method: 'DELETE' });
+    toast('Report deleted.');
+    await loadPatientReports(pid, pname);
+  } catch(err){
+    toast(err.message);
   }
 }
 
@@ -2421,10 +3030,24 @@ async function renderAdmin(c){
         <div class="field"><label>Vitals entered by</label><select id="vc-role" class="select"><option>Doctor</option><option>Receptionist</option><option>Both</option></select></div>
         <button class="btn primary" style="margin-top:10px" onclick="saveVConfig()">Save Rule</button>
       </div>
+      <div class="card" style="grid-column: 1 / -1;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div>
+            <h2><i class="fa-solid fa-database" style="color:var(--blue);margin-right:8px"></i>Database Backup & Disaster Recovery</h2>
+            <div class="subtle">WhatsApp-style periodic snapshots & 1-click restore. Safely backup or migrate entire clinic data.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn primary small" onclick="createBackupNow()"><i class="fa-solid fa-cloud-arrow-down"></i> Backup Now</button>
+            <button class="btn small" onclick="openRestoreBackupModal()"><i class="fa-solid fa-clock-rotate-left"></i> Restore from File</button>
+          </div>
+        </div>
+        <div id="backup-list-container" style="margin-top:14px">Loading backups...</div>
+      </div>
     </div>
   `;
   loadUsers();
   loadVConfig();
+  loadBackupsList();
 }
 
 async function loadUsers(){
@@ -2517,6 +3140,179 @@ async function saveVConfig(){
     toast(e.message);
   }
 }
+
+// --- DATABASE BACKUP & DISASTER RECOVERY (WHATSAPP-STYLE) ---
+async function loadBackupsList(){
+  const container = document.getElementById('backup-list-container');
+  if(!container) return;
+  try {
+    const list = await api('/api/backup/list');
+    if(!list || !list.length){
+      container.innerHTML = `
+        <div class="empty" style="padding:16px">
+          <i class="fa-solid fa-box-archive" style="font-size:28px;margin-bottom:6px;display:block;color:var(--muted)"></i>
+          No backups generated yet. Click <b>Backup Now</b> to create your first clinic backup archive.
+        </div>
+      `;
+      return;
+    }
+    const rows = list.map(b => {
+      const sz = formatBytes(b.file_size_bytes);
+      const isAuto = b.backup_type === 'AUTO';
+      const badge = isAuto
+        ? '<span class="chip green"><i class="fa-solid fa-clock"></i> Auto-Daily</span>'
+        : '<span class="chip blue"><i class="fa-solid fa-user-check"></i> Manual</span>';
+      const dt = (b.created_at || '').slice(0, 19).replace('T', ' ');
+      return `
+        <tr>
+          <td><b>${escapeHtml(b.filename)}</b></td>
+          <td>${badge}</td>
+          <td>${sz}</td>
+          <td>${dt}</td>
+          <td>
+            <button class="btn small" onclick="downloadBackupFile('${escapeHtml(b.filename)}')"><i class="fa-solid fa-download"></i> Download</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead><tr><th>Backup Archive</th><th>Type</th><th>Size</th><th>Created Date</th><th>Action</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  } catch(e){
+    container.innerHTML = `<div class="banner warn">${e.message}</div>`;
+  }
+}
+
+async function createBackupNow(){
+  try {
+    toast('Generating clinic backup archive...');
+    const res = await api('/api/backup/create', { method: 'POST' });
+    toast(`Backup created: ${res.filename}`);
+    if(document.getElementById('backup-list-container')){
+      await loadBackupsList();
+    }
+  } catch(e){
+    toast('Backup failed: ' + e.message);
+  }
+}
+
+async function downloadBackupFile(filename){
+  try {
+    toast('Downloading backup archive...');
+    const res = await fetch(`${API_BASE}/api/backup/download/${encodeURIComponent(filename)}`, {
+      headers: headers()
+    });
+    if(!res.ok){
+      let msg = 'Download failed.';
+      try { const e = await res.json(); msg = e.detail || msg; } catch {}
+      throw new Error(msg);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Download complete.');
+  } catch(e){
+    toast(e.message);
+  }
+}
+
+function openRestoreBackupModal(){
+  openModal(`
+    <div class="modalbox" style="max-width:540px;width:95%">
+      <div class="modalhead">
+        <div>
+          <h2><i class="fa-solid fa-clock-rotate-left" style="color:var(--blue);margin-right:8px"></i>Restore Database from Backup</h2>
+          <div class="subtle">Reinstall / Disaster Recovery for Dhanvantari Clinic ERP</div>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div class="banner warn" style="margin-top:10px">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Restoring from a backup will merge/restore all patients, appointments, consultations, invoices, and diagnostic files into the system.
+      </div>
+      <form id="form-restore-backup" onsubmit="submitRestoreBackup(event)" style="display:grid;gap:14px;margin-top:14px">
+        <div class="field">
+          <label>Select .dhanbackup File</label>
+          <input type="file" id="restore-file-input" class="input" accept=".dhanbackup,.zip" required>
+          <small class="subtle">Select the backup file generated from Dhanvantari Clinic ERP.</small>
+        </div>
+        <div id="restore-error" class="banner warn hidden"></div>
+        <div class="actions" style="justify-content:flex-end;gap:8px;margin-top:10px">
+          <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+          <button type="submit" id="btn-submit-restore" class="btn primary">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> Restore Data
+          </button>
+        </div>
+      </form>
+    </div>
+  `);
+}
+
+async function submitRestoreBackup(e){
+  e.preventDefault();
+  const fileInput = document.getElementById('restore-file-input');
+  const errEl = document.getElementById('restore-error');
+  const btn = document.getElementById('btn-submit-restore');
+  const file = fileInput?.files?.[0];
+  if(!file){
+    toast('Please choose a .dhanbackup file.');
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Restoring database...';
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await api('/api/backup/restore', {
+      method: 'POST',
+      body: fd
+    });
+    closeModal();
+    alert(`Database restore successful! Restored records: ${JSON.stringify(res.restored_records, null, 2)}`);
+    location.reload();
+  } catch(err){
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket"></i> Restore Data';
+    if(errEl){
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    } else {
+      toast(err.message);
+    }
+  }
+}
+
+function openBackupModal(){
+  openModal(`
+    <div class="modalbox" style="max-width:750px;width:95%">
+      <div class="modalhead">
+        <div>
+          <h2><i class="fa-solid fa-database" style="color:var(--blue);margin-right:8px"></i>Clinic Database Backup</h2>
+          <div class="subtle">WhatsApp-style periodic & on-demand snapshots</div>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <button class="btn primary small" onclick="createBackupNow()"><i class="fa-solid fa-cloud-arrow-down"></i> Backup Now</button>
+        <button class="btn small" onclick="openRestoreBackupModal()"><i class="fa-solid fa-clock-rotate-left"></i> Restore from File</button>
+      </div>
+      <div id="backup-list-container">Loading backups...</div>
+    </div>
+  `);
+  loadBackupsList();
+}
 // --- HIPAA § 164.312(b) & DPDP ACT 2023 COMPREHENSIVE AUDIT TRAIL VIEWER ---
 async function renderAudit(c){
   c.innerHTML = `
@@ -2545,6 +3341,7 @@ async function renderAudit(c){
             <option value="VITALS">VITALS (Physical Vitals)</option>
             <option value="BILLING">BILLING (Invoices & Payments)</option>
             <option value="PRESCRIPTION">PRESCRIPTION (Rx Export / Print)</option>
+            <option value="REPORTS">REPORTS (Diagnostic & Lab Documents)</option>
           </select>
         </div>
         <div>
@@ -2567,6 +3364,10 @@ async function renderAudit(c){
             <option value="COMPLETE_CONSULTATION">COMPLETE_CONSULTATION</option>
             <option value="READ_CONSULTATION">READ_CONSULTATION</option>
             <option value="READ_CLINICAL_HISTORY">READ_CLINICAL_HISTORY</option>
+            <option value="UPLOAD_PATIENT_REPORT">UPLOAD_PATIENT_REPORT</option>
+            <option value="READ_PATIENT_REPORTS">READ_PATIENT_REPORTS</option>
+            <option value="VIEW_PATIENT_REPORT">VIEW_PATIENT_REPORT</option>
+            <option value="DELETE_PATIENT_REPORT">DELETE_PATIENT_REPORT</option>
             <option value="RECORD_VITALS">RECORD_VITALS</option>
             <option value="CREATE_INVOICE">CREATE_INVOICE</option>
             <option value="COLLECT_PAYMENT">COLLECT_PAYMENT</option>
@@ -2671,6 +3472,228 @@ async function loadAuditLogs(){
   }
 }
 
+// --- DOCTOR-ONLY REPORTS ---
+let doctorReportData = null;
+let currentReportSubTab = 'opd';
+
+function _isoDate(d){
+  return d.toISOString().slice(0, 10);
+}
+
+async function renderReports(c){
+  const today = new Date();
+  const start30 = new Date();
+  start30.setDate(today.getDate() - 29);
+
+  c.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div class="patient-head">
+        <div>
+          <h2 style="display:flex;align-items:center;gap:8px"><i class="fa-solid fa-chart-column" style="color:var(--blue)"></i> Doctor Clinical & OPD Reports</h2>
+          <div class="subtle">Private clinical analytics scoped to your consultations (${escapeHtml(name)})</div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn small" onclick="exportCurrentReportCsv()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+          <button type="button" class="btn small" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:14px">
+        <button type="button" class="btn small" onclick="setReportRange('today')">Today</button>
+        <button type="button" class="btn small" onclick="setReportRange('7d')">Last 7 Days</button>
+        <button type="button" class="btn small" onclick="setReportRange('30d')">Last 30 Days</button>
+        <button type="button" class="btn small" onclick="setReportRange('month')">This Month</button>
+        <input id="rep-start" type="date" class="input" style="max-width:160px" value="${_isoDate(start30)}">
+        <input id="rep-end" type="date" class="input" style="max-width:160px" value="${_isoDate(today)}">
+        <button type="button" class="btn small primary" onclick="loadDoctorReports()"><i class="fa-solid fa-filter"></i> Apply</button>
+      </div>
+
+      <div class="actions" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px" id="report-subtabs">
+        <button type="button" class="btn small primary" data-rtab="opd" onclick="switchReportSubTab('opd')">1. OPD Summary</button>
+        <button type="button" class="btn small" data-rtab="followups" onclick="switchReportSubTab('followups')">2. Follow-Ups Due</button>
+        <button type="button" class="btn small" data-rtab="diagnoses" onclick="switchReportSubTab('diagnoses')">3. Diagnoses & Symptoms</button>
+        <button type="button" class="btn small" data-rtab="medicines" onclick="switchReportSubTab('medicines')">4. Top Medicines</button>
+        <button type="button" class="btn small" data-rtab="revenue" onclick="switchReportSubTab('revenue')">5. Revenue & Dues</button>
+        <button type="button" class="btn small" data-rtab="referrals" onclick="switchReportSubTab('referrals')">6. Referrals</button>
+      </div>
+    </div>
+
+    <div id="report-body">
+      <div class="card empty">Loading reports...</div>
+    </div>
+  `;
+
+  await loadDoctorReports();
+}
+
+function setReportRange(preset){
+  const today = new Date();
+  let start = new Date();
+  if(preset === '7d') start.setDate(today.getDate() - 6);
+  else if(preset === '30d') start.setDate(today.getDate() - 29);
+  else if(preset === 'month') start = new Date(today.getFullYear(), today.getMonth(), 1);
+  document.getElementById('rep-start').value = _isoDate(start);
+  document.getElementById('rep-end').value = _isoDate(today);
+  loadDoctorReports();
+}
+
+async function loadDoctorReports(){
+  const s = document.getElementById('rep-start')?.value || '';
+  const e = document.getElementById('rep-end')?.value || '';
+  const body = document.getElementById('report-body');
+  if(body) body.innerHTML = `<div class="card empty">Loading reports...</div>`;
+  try {
+    const qs = new URLSearchParams();
+    if(s) qs.set('start_date', s);
+    if(e) qs.set('end_date', e);
+    doctorReportData = await api('/api/reports/doctor?' + qs.toString());
+    renderReportSubTab();
+  } catch(err){
+    if(body) body.innerHTML = `<div class="banner warn">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function switchReportSubTab(tab){
+  currentReportSubTab = tab;
+  document.querySelectorAll('#report-subtabs button').forEach(b => {
+    b.classList.toggle('primary', b.dataset.rtab === tab);
+  });
+  renderReportSubTab();
+}
+
+function renderReportSubTab(){
+  const body = document.getElementById('report-body');
+  if(!body || !doctorReportData) return;
+  const d = doctorReportData;
+
+  if(currentReportSubTab === 'opd'){
+    const o = d.opd_summary;
+    const rows = o.by_consultation_type.length
+      ? o.by_consultation_type.map(x => `<tr><td>${escapeHtml(x.type)}</td><td><b>${x.count}</b></td></tr>`).join('')
+      : `<tr><td colspan="2" class="empty">No consultations in this range.</td></tr>`;
+    body.innerHTML = `
+      <div class="grid grid-4" style="margin-bottom:16px">
+        <div class="card stat stat-total"><small>Total Appointments</small><strong>${o.total_appointments}</strong></div>
+        <div class="card stat stat-completed"><small>Completed</small><strong>${o.completed}</strong></div>
+        <div class="card stat stat-consulting"><small>New vs Follow-Up</small><strong>${o.new_visits} / ${o.followup_visits}</strong></div>
+        <div class="card stat stat-scheduled"><small>Pending / Cancelled</small><strong>${o.active_or_pending} / ${o.cancelled}</strong></div>
+      </div>
+      <div class="card">
+        <h3>By Consultation Type (${d.start_date} to ${d.end_date})</h3>
+        <div style="overflow-x:auto"><table class="table"><thead><tr><th>Consultation Type</th><th>Patients</th></tr></thead><tbody>${rows}</tbody></table></div>
+      </div>`;
+    return;
+  }
+
+  if(currentReportSubTab === 'followups'){
+    const rows = d.follow_ups.length
+      ? d.follow_ups.map(x => {
+          const cls = x.status_bucket === 'OVERDUE' ? 'amber' : x.status_bucket === 'TODAY' ? 'green' : 'blue';
+          return `<tr>
+            <td><b>${escapeHtml(x.patient_name)}</b><div class="subtle">${escapeHtml(x.patient_number)}</div></td>
+            <td>${escapeHtml(x.mobile || '-')}</td>
+            <td style="white-space:nowrap">${escapeHtml(x.follow_up_date)}</td>
+            <td><span class="chip ${cls}">${x.status_bucket}</span></td>
+            <td>${escapeHtml(x.diagnosis || '-')}</td>
+          </tr>`;
+        }).join('')
+      : `<tr><td colspan="5" class="empty">No scheduled follow-up dates recorded.</td></tr>`;
+    body.innerHTML = `
+      <div class="card">
+        <h3>Follow-Up Due & Overdue Patients (${d.follow_ups.length})</h3>
+        <div style="overflow-x:auto"><table class="table"><thead><tr><th>Patient</th><th>Mobile</th><th>Follow-Up Date</th><th>Status</th><th>Last Diagnosis</th></tr></thead><tbody>${rows}</tbody></table></div>
+      </div>`;
+    return;
+  }
+
+  if(currentReportSubTab === 'diagnoses'){
+    const diagRows = d.diagnosis_trends.top_diagnoses.length
+      ? d.diagnosis_trends.top_diagnoses.map(x => `<tr><td>${escapeHtml(x.name)}</td><td><b>${x.count}</b></td></tr>`).join('')
+      : `<tr><td colspan="2" class="empty">No diagnoses in this range.</td></tr>`;
+    const symRows = d.diagnosis_trends.top_symptoms.length
+      ? d.diagnosis_trends.top_symptoms.map(x => `<tr><td>${escapeHtml(x.name)}</td><td><b>${x.count}</b></td></tr>`).join('')
+      : `<tr><td colspan="2" class="empty">No symptoms in this range.</td></tr>`;
+    body.innerHTML = `
+      <div class="grid grid-2">
+        <div class="card"><h3>Top Diagnoses</h3><div style="overflow-x:auto"><table class="table"><thead><tr><th>Diagnosis</th><th>Count</th></tr></thead><tbody>${diagRows}</tbody></table></div></div>
+        <div class="card"><h3>Top Symptoms</h3><div style="overflow-x:auto"><table class="table"><thead><tr><th>Symptom</th><th>Count</th></tr></thead><tbody>${symRows}</tbody></table></div></div>
+      </div>`;
+    return;
+  }
+
+  if(currentReportSubTab === 'medicines'){
+    const rows = d.top_medicines.length
+      ? d.top_medicines.map((x, idx) => `<tr><td>${idx + 1}</td><td><b>${escapeHtml(x.medicine_name)}</b></td><td>${x.count}</td></tr>`).join('')
+      : `<tr><td colspan="3" class="empty">No prescriptions in this range.</td></tr>`;
+    body.innerHTML = `
+      <div class="card">
+        <h3>Most Prescribed Medicines (${d.start_date} to ${d.end_date})</h3>
+        <div style="overflow-x:auto"><table class="table"><thead><tr><th>#</th><th>Medicine Name</th><th>Times Prescribed</th></tr></thead><tbody>${rows}</tbody></table></div>
+      </div>`;
+    return;
+  }
+
+  if(currentReportSubTab === 'revenue'){
+    const r = d.revenue_summary;
+    const modeRows = r.by_payment_mode.length
+      ? r.by_payment_mode.map(x => `<tr><td><b>${escapeHtml(x.mode)}</b></td><td>${x.count}</td><td>₹${x.amount.toFixed(2)}</td></tr>`).join('')
+      : `<tr><td colspan="3" class="empty">No invoices in this range.</td></tr>`;
+    const statusRows = r.by_payment_status.length
+      ? r.by_payment_status.map(x => `<tr><td><b>${escapeHtml(x.status)}</b></td><td>${x.count}</td><td>₹${x.amount.toFixed(2)}</td></tr>`).join('')
+      : `<tr><td colspan="3" class="empty">No invoices in this range.</td></tr>`;
+    body.innerHTML = `
+      <div class="grid grid-4" style="margin-bottom:16px">
+        <div class="card stat stat-total"><small>Total Invoices</small><strong>${r.total_invoices}</strong></div>
+        <div class="card stat stat-consulting"><small>Total Billed</small><strong>₹${r.total_billed.toFixed(0)}</strong></div>
+        <div class="card stat stat-completed"><small>Collected</small><strong>₹${r.total_collected.toFixed(0)}</strong></div>
+        <div class="card stat stat-waiting"><small>Pending Due</small><strong>₹${r.total_due.toFixed(0)}</strong></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card"><h3>By Payment Mode (Collected)</h3><table class="table"><thead><tr><th>Mode</th><th>Invoices</th><th>Collected</th></tr></thead><tbody>${modeRows}</tbody></table></div>
+        <div class="card"><h3>By Payment Status</h3><table class="table"><thead><tr><th>Status</th><th>Invoices</th><th>Total</th></tr></thead><tbody>${statusRows}</tbody></table></div>
+      </div>`;
+    return;
+  }
+
+  if(currentReportSubTab === 'referrals'){
+    const rows = d.referrals.length
+      ? d.referrals.map(x => `<tr><td><span class="chip blue">${escapeHtml(x.referred_by_type)}</span></td><td><b>${escapeHtml(x.referred_by_name)}</b></td><td>${x.count}</td></tr>`).join('')
+      : `<tr><td colspan="3" class="empty">No referral records in this range.</td></tr>`;
+    body.innerHTML = `
+      <div class="card">
+        <h3>Patient Referrals (${d.start_date} to ${d.end_date})</h3>
+        <div style="overflow-x:auto"><table class="table"><thead><tr><th>Referral Type</th><th>Referred By</th><th>Patients</th></tr></thead><tbody>${rows}</tbody></table></div>
+      </div>`;
+  }
+}
+
+function exportCurrentReportCsv(){
+  if(!doctorReportData) return;
+  const d = doctorReportData;
+  let rows = [];
+  if(currentReportSubTab === 'opd'){
+    rows = [['Consultation Type', 'Patients'], ...d.opd_summary.by_consultation_type.map(x => [x.type, x.count])];
+  } else if(currentReportSubTab === 'followups'){
+    rows = [['Patient', 'Patient ID', 'Mobile', 'Follow-Up Date', 'Status', 'Diagnosis'], ...d.follow_ups.map(x => [x.patient_name, x.patient_number, x.mobile, x.follow_up_date, x.status_bucket, x.diagnosis])];
+  } else if(currentReportSubTab === 'diagnoses'){
+    rows = [['Category', 'Name', 'Count'], ...d.diagnosis_trends.top_diagnoses.map(x => ['Diagnosis', x.name, x.count]), ...d.diagnosis_trends.top_symptoms.map(x => ['Symptom', x.name, x.count])];
+  } else if(currentReportSubTab === 'medicines'){
+    rows = [['Medicine Name', 'Times Prescribed'], ...d.top_medicines.map(x => [x.medicine_name, x.count])];
+  } else if(currentReportSubTab === 'revenue'){
+    rows = [['Payment Mode', 'Invoices', 'Collected Amount'], ...d.revenue_summary.by_payment_mode.map(x => [x.mode, x.count, x.amount.toFixed(2)])];
+  } else if(currentReportSubTab === 'referrals'){
+    rows = [['Referral Type', 'Referred By', 'Patients'], ...d.referrals.map(x => [x.referred_by_type, x.referred_by_name, x.count])];
+  }
+  const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `doctor_report_${currentReportSubTab}_${d.start_date}_to_${d.end_date}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // --- MODAL UTILITIES ---
 function openModal(html){
   const m = document.getElementById('modal');
@@ -2707,6 +3730,36 @@ window.addEventListener('load', async () => {
     localStorage.removeItem('dhan_session');
   }
 });
+
+// --- MOBILE/TABLET DRAWER & PWA ---
+function toggleMobileSidebar(){
+  document.getElementById('app-sidebar')?.classList.toggle('open');
+  document.getElementById('sidebar-backdrop')?.classList.toggle('open');
+}
+function closeMobileSidebar(){
+  document.getElementById('app-sidebar')?.classList.remove('open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('open');
+}
+
+let deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+  document.getElementById('btn-install-pwa')?.classList.remove('hidden');
+});
+async function installPwa(){
+  if(!deferredPwaPrompt) return;
+  deferredPwaPrompt.prompt();
+  await deferredPwaPrompt.userChoice;
+  deferredPwaPrompt = null;
+  document.getElementById('btn-install-pwa')?.classList.add('hidden');
+}
+
+if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/ui/sw.js', { scope: '/ui/' }).catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

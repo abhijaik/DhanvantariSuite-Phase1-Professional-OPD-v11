@@ -20,13 +20,13 @@ def get_audit_logs(
     branch_id: Optional[str] = Query(None, description="Filter by branch id"),
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
-    current_user: User = Depends(require_role([UserRole.ADMIN])),
+    current_user: User = Depends(require_role([UserRole.ADMIN, UserRole.DOCTOR, UserRole.DOCTOR_ALL])),
     db: Session = Depends(get_db),
     tenant_context: tuple[str, str] = Depends(get_tenant_context)
 ):
     """
     HIPAA § 164.312(b) & DPDP Act 2023 Audit Log Retrieval Endpoint.
-    Restricted strictly to system Administrators.
+    Accessible to Administrators and Doctors.
     """
     tenant_id, _ = tenant_context
     
